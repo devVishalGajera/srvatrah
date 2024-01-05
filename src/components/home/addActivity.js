@@ -101,12 +101,12 @@ const AddActivity = () => {
               <Link to={'/pricingCategories'}>
                 <Typography className='menuItem'>Pricing-Categories</Typography>
               </Link>
-              <Link to={'/rates'}>
-                <Typography className='menuItem'>Rates</Typography>
-              </Link>
-              <Link to={'/pricing'}>
-                <Typography className='menuItem'>Pricing</Typography>
-              </Link>
+              {/* <Link to={'/rates'}> */}
+              {/*   <Typography className='menuItem'>Rates</Typography> */}
+              {/* </Link> */}
+              {/* <Link to={'/pricing'}> */}
+              {/*   <Typography className='menuItem'>Pricing</Typography> */}
+              {/* </Link> */}
             </AccordionDetails>
           </Accordion>
           <Accordion>

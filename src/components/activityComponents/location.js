@@ -1,11 +1,27 @@
 import { Button, TextField } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 const LocationDetails = () => {
   const state = useLocation();
-  const { _id } = state.state;
   const navigate = useNavigate();
   const [locationdata, setLocation] = useState("");
+  const { _id } = state.state ? state.state : localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState("");
+  useEffect(() => {
+    const localId = localStorage.getItem("_id");
+    if (_id) {
+      setExperienceId(_id);
+      return;
+    }
+    if (localId) {
+      setExperienceId(localId);
+      return;
+    }
+    if (!experienceId) {
+      alert("Please fill in all the fields");
+      return;
+    }
+  }, []);
   const submit = async () => {
     const query = new URLSearchParams({
       location: locationdata,
@@ -18,6 +34,10 @@ const LocationDetails = () => {
       `http://127.0.0.1:3232/experience/${_id}?${query.toString()}`,
       {
         method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ location: locationdata }),
       }
     );
     const responseJson = await response.json();

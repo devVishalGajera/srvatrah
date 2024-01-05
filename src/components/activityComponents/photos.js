@@ -1,80 +1,153 @@
-// import { Button, TextField } from '@mui/material';
-import { Button, Paper, IconButton, Box } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import React from 'react'
-
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { Box, Button, IconButton, Paper } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 const Photos = () => {
-    return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', marginBottom: '30px' }}>
-                <h2 style={{ fontWeight: 'bold', padding: '5px' }}>
-                    A photo is worth a thousand words!
-                </h2>
-                <p style={{ padding: '5px' }}>
-                    We recommend that you add at least 5 high quality photos to your experience with various angles and views
-                </p>
-            </div>
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { _id } = location.state ? location.state : {};
+  const [experienceId, setExperienceId] = useState("");
+  const [photos, setPhotos] = useState();
+  useEffect(() => {
+    const localId = localStorage.getItem("_id");
+    if (_id && _id !== "undefined" && _id !== "null" && _id.length > 0) {
+      setExperienceId(_id);
+      return;
+    }
+    if (localId) {
+      setExperienceId(localId);
+      return;
+    }
+    if (!experienceId) {
+      alert("please add titel and categories");
+      navigate("/titel");
+    }
+  });
+  const submit = async () => {
+    const data = {
+      photos: photos,
+    };
+    const response = await fetch(
+      `http://127.0.0.1:3232/experience/${_id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const responseJson = await response.json();
+    if (!response.ok) {
+      alert(responseJson.error);
+      return;
+    }
+    navigate("/video", {
+      state: {
+        ...responseJson,
+      },
+    });
+  }
 
-            <div style={{ width: '70%' }}>
-                <Paper
-                    elevation={7}
-                    style={{
-                        padding: '20px',
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        border: '2px dashed #0000003D',
-                        borderRadius: '12px',
-                        height: '200px',
-                        boxShadow: 'none',
-                        justifyContet: 'center',
-                    }}
-                // onDrop={handleDrop}
-                // onDragOver={preventDefault}
-                >
-                    <input
-                        type="file"
-                        // onChange={handleFileChange}
-                        style={{ display: 'none' }}
-                        id="file-upload-input"
-                        accept="image/*"
-                        maxFileSize={5 * 1024 * 1024}
-                    />
-                    <label
-                        htmlFor="file-upload-input"
-                        style={{
-                            height: '100%',
-                            width: '100%',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexDirection:'column'
-                        }}>
-                        <h4>Drag photos here to upload</h4>
-                        <span>Supported file types are: .png, .jpg, .jpeg</span>
-                        {/* <span>Maximum file size is 17 MB</span> */}
-                        <IconButton component="span" size="large">
-                            {/* <Image src={FileUploadIcon} alt="Image" /> */}
-                            <CloudUploadIcon/> Browse Your Computer
-                        </IconButton>
-                    </label>
-                </Paper>
-            </div>
+  const handleImageChange = (e) => {
+    let reader = new FileReader();
+    reader.readAsDataURL(e.target.files[0]);
+    reader.onload = () => {
+      setPhotos(reader.result);
+    }
+  }
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "20px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "20px",
+          marginBottom: "30px",
+        }}
+      >
+        <h2 style={{ fontWeight: "bold", padding: "5px" }}>
+          A photo is worth a thousand words!
+        </h2>
+        <p style={{ padding: "5px" }}>
+          We recommend that you add at least 5 high quality photos to your
+          experience with various angles and views
+        </p>
+      </div>
 
-            <div style={{ width: '70%', display: 'flex', justifyContent: 'space-between', marginTop: '150px' }}>
-                <Button variant="outlined">Back</Button>
-                <Button variant="contained">Continue</Button>
-            </div>
-        </div>
-    )
-}
+      <div style={{ width: "70%" }}>
+        <Paper
+          elevation={7}
+          style={{
+            padding: "20px",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            border: "2px dashed #0000003D",
+            borderRadius: "12px",
+            height: "200px",
+            boxShadow: "none",
+            justifyContet: "center",
+          }}
+        // onDrop={handleDrop}
+        // onDragOver={preventDefault}
+        >
+          <input
+            type="file"
+            // onChange={handleFileChange}
+            style={{ display: "none" }}
+            id="file-upload-input"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          <label
+            htmlFor="file-upload-input"
+            style={{
+              height: "100%",
+              width: "100%",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+            }}
+          >
+            <h4>Drag photos here to upload</h4>
+            <span>Supported file types are: .png, .jpg, .jpeg</span>
+            {/* <span>Maximum file size is 17 MB</span> */}
+            <IconButton component="span" size="large">
+              {/* <Image src={FileUploadIcon} alt="Image" /> */}
+              <CloudUploadIcon /> Browse Your Computer
+            </IconButton>
+          </label>
+        </Paper>
+      </div>
+
+      <div
+        style={{
+          width: "70%",
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "150px",
+        }}
+      >
+        <Button variant="outlined">Back</Button>
+        <Button variant="contained" onClick={submit}>Continue</Button>
+      </div>
+    </div>
+  );
+};
 
 export default Photos;
-
-
-
 
 // import React, { useEffect, useState } from 'react';
 // import { Button, Paper, IconButton, Box } from '@mui/material';
@@ -379,4 +452,3 @@ export default Photos;
 // };
 
 // export default FileUploadWithProgressBar;
-

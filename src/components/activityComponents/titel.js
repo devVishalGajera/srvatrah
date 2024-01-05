@@ -31,10 +31,11 @@ const Titel = () => {
     // }
     const responseJson = await response.json();
     console.log(responseJson, "responseJson");
+    localStorage.setItem("_id", responseJson._id);
     navigate("/duration", {
       state: {
         title: title,
-        id: responseJson._id,
+        _id: responseJson._id,
       },
     });
   };
