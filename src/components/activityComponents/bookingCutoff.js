@@ -66,6 +66,11 @@ const BookingCutoff = () => {
         }
       );
       const result = await response.json();
+      navigate("/bookingOpeningDate", {
+        state: {
+          ...result,
+        },
+      });
       console.log(result);
     } else {
       const data = {

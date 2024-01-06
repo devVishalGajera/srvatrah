@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-
+import { useLocation, useNavigate } from "react-router-dom";
 const style = {
   marginTop: "10px",
   position: "absolute",
@@ -30,6 +30,10 @@ const style = {
 };
 
 const PricingCategories = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { _id } = location.state ? location.state : {};
+  const [experienceId, setExperienceId] = useState("");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -48,11 +52,11 @@ const PricingCategories = () => {
   });
   const [rows, setRows] = useState([
     {
-      id: "Standard rate | #15925032",
-      categories: categories[0],
-      times: "All start times",
-      setDefault: "Set as default",
-      buttons: "Edit/ Remove/ Clone",
+      id: 1,
+      categories: "child",
+      occupancy: "20",
+      min_age: null,
+      max_age: null,
     },
   ]);
 
@@ -64,6 +68,21 @@ const PricingCategories = () => {
     min_age: null,
     max_age: null,
   });
+  useEffect(() => {
+    const localID = localStorage.getItem("_id");
+    if (_id && _id.length > 0) {
+      setExperienceId(_id);
+      return;
+    }
+    if (localID && localID.length > 0) {
+      setExperienceId(localID);
+      return;
+    }
+    if (!_id && !localID) {
+      navigate("/title");
+      return;
+    }
+  }, []);
   //travelling_facility
   const handleSwitchChange = () => {
     setFormData({
@@ -88,8 +107,32 @@ const PricingCategories = () => {
     });
     handleClose();
   };
-  const submit = () => {
-    console.log(rows);
+  const submit = async () => {
+    const pricingRows = rows.map((row) => {
+      return {
+        categories: row.categories.value,
+        occupancy: row.occupancy,
+        min_age: row.min_age,
+        max_age: row.max_age,
+      };
+    });
+    const removedNulls = pricingRows.filter((row, index) => index !== 0);
+    const data = {
+      pricing: removedNulls,
+    };
+    const response = await fetch(
+      "http://127.0.0.1:3232/experience/pricing/" + experienceId,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const data2 = await response.json();
+    console.log(data2);
+    navigate("/meetingPickup", { state: { ...data2 } });
   };
   return (
     <>
@@ -451,7 +494,7 @@ const PricingCategories = () => {
           }}
         >
           <Button variant="outlined">Back</Button>
-          <Button variant="contained" onSubmit={submit}>
+          <Button variant="contained" onClick={submit}>
             Continue
           </Button>
         </div>

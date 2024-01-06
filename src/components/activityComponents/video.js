@@ -28,7 +28,7 @@ const Videos = () => {
   });
   const submit = async () => {
     const data = {
-      videos: videoLinks,
+      video_link: videoLinks,
     };
     const response = await fetch(`http://127.0.0.1:3232/experience/${_id}`, {
       method: "PUT",
@@ -47,13 +47,12 @@ const Videos = () => {
         ...responseJson,
       },
     });
-  }
+  };
   const handleVideoLinkChange = (index, value) => {
     const newLinks = [...videoLinks];
     newLinks[index] = value;
     setVideoLinks(newLinks);
   };
-
 
   const addVideoLink = () => {
     setVideoLinks([...videoLinks, ""]);
@@ -119,7 +118,9 @@ const Videos = () => {
         }}
       >
         <Button variant="outlined">Back</Button>
-        <Button variant="contained" onClick={submit}>Continue</Button>
+        <Button variant="contained" onClick={submit}>
+          Continue
+        </Button>
       </div>
     </div>
   );

@@ -7,8 +7,57 @@ import {
   TextField,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Capacity = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { _id } = location.state ? location.state : {};
+  const [experienceId, setExperienceId] = useState("");
+  const [capacity, setCapacity] = useState("");
+  useEffect(() => {
+    const localId = localStorage.getItem("_id");
+    if (_id) {
+      setExperienceId(_id);
+      return;
+    }
+    if (localId) {
+      setExperienceId(localId);
+      return;
+    }
+    if (!experienceId && experienceId.length === 0) {
+      alert("please add titel and categories");
+      navigate("/titel");
+      return;
+    }
+  }, []);
+  //    enum: ["sale", "limited", "on_request"],
+
+  const submit = async () => {
+    if (capacity.length === 0) {
+      alert("please fill in all the fields");
+      return;
+    }
+    const data = {
+      capacity,
+    };
+    const response = await fetch(
+      "http://127.0.0.1:3232/experience/" + experienceId,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    navigate("/timeDatePass", {
+      state: {
+        ...data,
+      },
+    });
+  };
+
   return (
     <div
       style={{
@@ -42,6 +91,8 @@ const Capacity = () => {
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="female"
             name="radio-buttons-group"
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
           >
             <div
               style={{
@@ -54,7 +105,15 @@ const Capacity = () => {
                 marginTop: "10px",
               }}
             >
-              <FormControlLabel value="dateTime" control={<Radio />} />
+              <FormControlLabel
+                value="sale"
+                control={
+                  <Radio
+                    value={"sale"}
+                    onChange={(e) => setCapacity(e.target.value)}
+                  />
+                }
+              />
               <div>
                 <h5>Free sale (unlimited)</h5>
                 <span>
@@ -73,7 +132,15 @@ const Capacity = () => {
                 marginTop: "10px",
               }}
             >
-              <FormControlLabel value="date" control={<Radio />} />
+              <FormControlLabel
+                value="limited"
+                control={
+                  <Radio
+                    value={"limited"}
+                    onChange={(e) => setCapacity(e.target.value)}
+                  />
+                }
+              />
               <div>
                 <h5>Limited number</h5>
                 <span>
@@ -93,7 +160,15 @@ const Capacity = () => {
                 marginTop: "10px",
               }}
             >
-              <FormControlLabel value="pass" control={<Radio />} />
+              <FormControlLabel
+                value="on_request"
+                control={
+                  <Radio
+                    value={"on_request"}
+                    onChange={(e) => setCapacity(e.target.value)}
+                  />
+                }
+              />
               <div>
                 <h5>On request (not recommended)</h5>
                 <span>
@@ -115,7 +190,9 @@ const Capacity = () => {
         }}
       >
         <Button variant="outlined">Back</Button>
-        <Button variant="contained">Continue</Button>
+        <Button variant="contained" onClick={submit}>
+          Continue
+        </Button>
       </div>
     </div>
   );

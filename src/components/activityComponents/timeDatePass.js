@@ -47,12 +47,12 @@ const TimeDatePass = () => {
       alert(responseJson.error);
       return;
     }
-    navigate("/timeDatePass", {
+    navigate("/openingHours", {
       state: {
         ...responseJson,
       },
     });
-  }
+  };
   return (
     <div
       style={{
@@ -97,7 +97,10 @@ const TimeDatePass = () => {
                 marginTop: "10px",
               }}
             >
-              <FormControlLabel value="dateTime" control={<Radio onChange={() => setType("date_time")} />} />
+              <FormControlLabel
+                value="dateTime"
+                control={<Radio onChange={() => setType("date_time")} />}
+              />
               <div>
                 <h5>Date and Time</h5>
                 <span>
@@ -116,7 +119,10 @@ const TimeDatePass = () => {
                 marginTop: "10px",
               }}
             >
-              <FormControlLabel value="date" control={<Radio onChange={() => setType("date")} />} />
+              <FormControlLabel
+                value="date"
+                control={<Radio onChange={() => setType("date")} />}
+              />
               <div>
                 <h5>Just date, no time</h5>
                 <span>
@@ -136,7 +142,10 @@ const TimeDatePass = () => {
                 marginTop: "10px",
               }}
             >
-              <FormControlLabel value="pass" control={<Radio onChange={() => setType("pass")} />} />
+              <FormControlLabel
+                value="pass"
+                control={<Radio onChange={() => setType("pass")} />}
+              />
               <div>
                 <h5>Pass</h5>
                 <span>
@@ -158,7 +167,9 @@ const TimeDatePass = () => {
         }}
       >
         <Button variant="outlined">Back</Button>
-        <Button variant="contained" onClick={submit}>Continue</Button>
+        <Button variant="contained" onClick={submit}>
+          Continue
+        </Button>
       </div>
     </div>
   );
@@ -166,5 +177,4 @@ const TimeDatePass = () => {
 
 export default TimeDatePass;
 
-
- //   enum: ["date_time", "date", "pass"],
+//   enum: ["date_time", "date", "pass"],

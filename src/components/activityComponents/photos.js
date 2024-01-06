@@ -27,35 +27,32 @@ const Photos = () => {
     const data = {
       photos: photos,
     };
-    const response = await fetch(
-      `http://127.0.0.1:3232/experience/${_id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(`http://127.0.0.1:3232/experience/${_id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
     const responseJson = await response.json();
     if (!response.ok) {
       alert(responseJson.error);
       return;
     }
-    navigate("/video", {
+    navigate("/videos", {
       state: {
         ...responseJson,
       },
     });
-  }
+  };
 
   const handleImageChange = (e) => {
     let reader = new FileReader();
     reader.readAsDataURL(e.target.files[0]);
     reader.onload = () => {
       setPhotos(reader.result);
-    }
-  }
+    };
+  };
   return (
     <div
       style={{
@@ -98,8 +95,8 @@ const Photos = () => {
             boxShadow: "none",
             justifyContet: "center",
           }}
-        // onDrop={handleDrop}
-        // onDragOver={preventDefault}
+          // onDrop={handleDrop}
+          // onDragOver={preventDefault}
         >
           <input
             type="file"
@@ -141,7 +138,9 @@ const Photos = () => {
         }}
       >
         <Button variant="outlined">Back</Button>
-        <Button variant="contained" onClick={submit}>Continue</Button>
+        <Button variant="contained" onClick={submit}>
+          Continue
+        </Button>
       </div>
     </div>
   );

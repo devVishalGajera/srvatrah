@@ -17,7 +17,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import React, { useState, useEffect } from "react";
 // import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
-
+import { useLocation, useNavigate } from "react-router-dom";
 function createData(id, time, duration, linkedRates, buttons) {
   return { id, time, duration, linkedRates, buttons };
 }
@@ -43,6 +43,10 @@ const style = {
 };
 
 const StartTime = () => {
+  const navigate = useNavigate();
+  const [experienceId, setExperienceId] = useState("");
+  const location = useLocation();
+  const { _id } = location.state ? location.state : {};
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -54,6 +58,7 @@ const StartTime = () => {
     linkedRates: "",
   });
   const [totalData, setTotalData] = useState(1);
+  const [editingId, setEditingId] = useState(-1);
   //"2825752", "12:00 PM", "1 hour", "Standard rate", "Edit/Delete"
   const [rows, setRows] = useState([
     {
@@ -64,8 +69,43 @@ const StartTime = () => {
       buttons: "Edit/Delete",
     },
   ]);
+  useEffect(() => {
+    const localID = localStorage.getItem("_id");
+    if (_id && _id.length > 0) {
+      setExperienceId(_id);
+      return;
+    }
+    if (localID && localID.length > 0) {
+      setExperienceId(localID);
+      return;
+    }
+    if (!_id && !localID) {
+      navigate("/title");
+      return;
+    }
+    navigate("/");
+  }, []);
   const createStartTime = async () => {
-    console.log(formData);
+    if (editingId !== -1) {
+      rows[editingId] = {
+        id: rows[editingId].id,
+        time: formData.time,
+        duration: formData.duration,
+        linkedRates: formData.linkedRates,
+        buttons: "Edit/Delete",
+      };
+      setEditingId(-1);
+      setRows([...rows]);
+      setFormData({
+        time: "",
+        duration: "",
+        internalLabel: "",
+        externalLabel: "",
+        linkedRates: "",
+      });
+      handleClose();
+      return;
+    }
     setTotalData((prev) => prev + 1);
     createData(
       totalData,
@@ -81,9 +121,80 @@ const StartTime = () => {
         time: formData.time,
         duration: formData.duration,
         linkedRates: formData.linkedRates,
+        internalLabel: formData.internalLabel,
+        externalLabel: formData.externalLabel,
       },
     ]);
     handleClose();
+  };
+  const handleDelete = (id) => {
+    setRows((rows) => rows.filter((row) => row.id !== id));
+    setTotalData((prev) => prev - 1);
+  };
+  const handleEdit = (id) => {
+    setFormData({
+      time: rows[id].time,
+      duration: rows[id].duration,
+      linkedRates: rows[id].linkedRates,
+    });
+    handleOpen();
+  };
+  const submit = async () => {
+    /**
+     *  start_time: {
+    type: String,
+    required: true,
+  },
+  duration: {
+    hours: {
+      type: Number,
+      required: true,
+    },
+    minutes: {
+      type: Number,
+      required: true,
+    },
+  },
+  internal_label: {
+    type: String,
+  },
+  external_label: {
+    type: String,
+  },
+  product_code: {
+    type: String,
+    required: true,
+  },
+     */
+    console.log(rows);
+    const updatedRows = rows.map((row) => {
+      return {
+        start_time: row.time,
+        duration: row.duration,
+        internal_label: row.internalLabel,
+        external_label: row.externalLabel,
+        product_code: row.linkedRates,
+      };
+    });
+    const data = {
+      availability_detail: [...updatedRows],
+    };
+    const response = await fetch(
+      "http://127.0.0.1:3232/experience/updateTiming/" + experienceId,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const data2 = await response.json();
+    navigate("/pricingCategories", {
+      state: {
+        ...data2,
+      },
+    });
   };
   return (
     <>
@@ -129,7 +240,11 @@ const StartTime = () => {
                     onChange={(e) => {
                       setFormData({
                         ...formData,
-                        duration: `${e.target.value}:00`,
+                        duration: `${e.target.value}:${
+                          formData.duration.split(":")[1]
+                            ? formData.duration.split(":")[1]
+                            : "00"
+                        }`,
                       });
                     }}
                     InputLabelProps={{
@@ -148,7 +263,11 @@ const StartTime = () => {
                     onChange={(e) => {
                       setFormData({
                         ...formData,
-                        duration: `${formData.duration}:${e.target.value}`,
+                        duration: `${
+                          formData.duration.split(":")[0]
+                            ? formData.duration.split(":")[0]
+                            : "00"
+                        }:${e.target.value}`,
                       });
                     }}
                     InputLabelProps={{
@@ -200,6 +319,9 @@ const StartTime = () => {
                 id="outlined-basic"
                 variant="outlined"
                 size="small"
+                onChange={(e) => {
+                  setFormData({ ...formData, externalLabel: e.target.value });
+                }}
               />
             </div>
             <div style={{ padding: "10px" }}>
@@ -295,7 +417,23 @@ const StartTime = () => {
                     <TableCell align="center">{row.time}</TableCell>
                     <TableCell align="center">{row.duration}</TableCell>
                     <TableCell align="center">{row.linkedRates}</TableCell>
-                    <TableCell align="center">{row.buttons}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        onClick={() => {
+                          handleDelete(row.id);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setEditingId(row.id);
+                          handleEdit(row.id);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -319,7 +457,9 @@ const StartTime = () => {
           }}
         >
           <Button variant="outlined">Back</Button>
-          <Button variant="contained">Continue</Button>
+          <Button variant="contained" onClick={submit}>
+            Continue
+          </Button>
         </div>
       </div>
     </>

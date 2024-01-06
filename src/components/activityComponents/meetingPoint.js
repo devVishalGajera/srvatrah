@@ -16,6 +16,7 @@ import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 // import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 
 function createData(titel, address, buttons) {
@@ -42,6 +43,10 @@ const style = {
 };
 
 const MeetingPoint = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { _id } = location.state ? location.state : {};
+  const [experienceId, setExperienceId] = useState("");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -53,24 +58,6 @@ const MeetingPoint = () => {
     city: "",
     pin_code: "",
   });
-  //"mota-varaccha", "mota-varacha", "Edit/Delete"
-  //const meetingPickupSchema = new mongoose.Schema({
-  //   title: {
-  //     type: String,
-  //   },
-  //   address: {
-  //     type: String,
-  //   },
-  //   country: {
-  //     type: String,
-  //   },
-  //   city: {
-  //     type: String,
-  //   },
-  //   pin_code: {
-  //     type: String,
-  //   },
-  // });
   const [rows, setRows] = useState([
     {
       titel: "mota-varaccha",
@@ -80,6 +67,21 @@ const MeetingPoint = () => {
       pin_code: "110001",
     },
   ]);
+  useEffect(() => {
+    const localId = localStorage.getItem("_id");
+    if (_id) {
+      setExperienceId(_id);
+      return;
+    }
+    if (localId) {
+      setExperienceId(localId);
+      return;
+    }
+    if (!experienceId) {
+      alert("Please fill in all the fields");
+      return;
+    }
+  });
 
   const createMeetingPoint = async () => {
     if (editingIndex >= 0) {
@@ -120,8 +122,7 @@ const MeetingPoint = () => {
       meeting_point: rows,
     };
     const response = await fetch(
-      "http://127.0.0.1:3232/experience/meetingPoint/" +
-        "65980533dd32539ceb6b721e",
+      "http://127.0.0.1:3232/experience/meetingPoint/" + experienceId,
       {
         method: "POST",
         headers: {
