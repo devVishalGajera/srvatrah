@@ -5,25 +5,41 @@ import { useLocation, useNavigate } from "react-router-dom";
 const Duration = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { title, _id } = location.state ? location.state : {};
-  console.log(title, _id, "title, id");
-  const [duration, setDuration] = useState({});
-  const [experienceId, setExperienceId] = useState("");
+  const _id = localStorage.getItem("_id");
+  const [duration, setDuration] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+  });
+  const [experienceId, setExperienceId] = useState(_id);
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
     if (_id) {
       setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
-      return;
-    }
-    if (!experienceId && experienceId.length === 0) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${_id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        const { duration } = responseJson;
+        const durationInString = duration.split(":");
+        console.log(durationInString, "durationInString");
+        setDuration({
+          days: durationInString[0],
+          hours: durationInString[1],
+          minutes: durationInString[2],
+        });
+      })();
+    } else if (!experienceId && experienceId.length === 0) {
       alert("please add titel and categories");
       navigate("/titel");
     }
-  });
+  }, []);
   const submit = async () => {
     const durationInString = `${duration.days}:${duration.hours}:${duration.minutes}`;
     const query = new URLSearchParams({
@@ -89,6 +105,7 @@ const Duration = () => {
           onChange={(e) =>
             setDuration((prev) => ({ ...prev, days: e.target.value }))
           }
+          value={duration.days}
         />
         <TextField
           id="outlined-number"
@@ -100,6 +117,7 @@ const Duration = () => {
           onChange={(e) =>
             setDuration((prev) => ({ ...prev, hours: e.target.value }))
           }
+          value={duration.hours}
         />
         <TextField
           id="outlined-number"
@@ -111,6 +129,7 @@ const Duration = () => {
           onChange={(e) =>
             setDuration((prev) => ({ ...prev, minutes: e.target.value }))
           }
+          value={duration.minutes}
         />
       </div>
 

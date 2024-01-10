@@ -45,16 +45,28 @@ const Exclusions = () => {
   const navigate = useNavigate();
   const [short_description, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
-  const { _id } = location.state ? location.state : localStorage.getItem("_id");
-  const [experienceId, setExperienceId] = useState("");
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId && experienceId.length > 0) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${experienceId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        const { exclusions } = responseJson;
+        if (!exclusions) {
+          return;
+        }
+        setShortDescription(exclusions.short_des);
+        setDescription(exclusions.detail_dec);
+      })();
       return;
     }
     if (!experienceId) {
@@ -68,8 +80,7 @@ const Exclusions = () => {
       return;
     }
     const data = {
-      included: short_description,
-      detail_des: description,
+      exclusions: { short_des: short_description, detail_dec: description },
     };
     const res = await fetch(
       "http://127.0.0.1:3232/experience/" + experienceId,
@@ -131,6 +142,7 @@ const Exclusions = () => {
             id="outlined-basic"
             variant="outlined"
             size="small"
+            value={short_description || ""}
             onChange={(e) => {
               console.log(e);
               setShortDescription(e?.target?.value);
@@ -146,12 +158,13 @@ const Exclusions = () => {
             style={{ height: "150px" }}
             modules={modules}
             formats={formats}
+            value={description || ""}
             onChange={(e) => {
               setDescription(e);
             }}
-          // value={editorValue}
-          // {...restProps}
-          // onChange={handleEditorChange}
+            // value={editorValue}
+            // {...restProps}
+            // onChange={handleEditorChange}
           />
         </div>
       </div>

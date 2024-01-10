@@ -37,38 +37,49 @@ export const formats = [
 const Description = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { _id } = location.state ? location.state : {};
   const [shortDescription, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
-  const [experienceId, setExperienceId] = useState("");
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
-      return;
+    if (experienceId && experienceId.length > 0) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${experienceId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        console.log(responseJson, "responseJson");
+        const { description } = responseJson;
+        setDescription(description.detail_dec);
+        setShortDescription(description.short_des);
+      })();
     }
     if (!experienceId) {
       alert("please add titel and categories");
       navigate("/titel");
       return;
     }
-  });
+  }, []);
   const submit = async () => {
     const data = {
-      short_des: shortDescription,
-      detail_dec: description,
+      description: { short_des: shortDescription, detail_dec: description },
     };
-    const response = await fetch(`http://127.0.0.1:3232/experience/${_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      `http://127.0.0.1:3232/experience/${experienceId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
     const responseJson = await response.json();
     if (!response.ok) {
       alert(responseJson.message);
@@ -120,6 +131,7 @@ const Description = () => {
             id="outlined-basic"
             variant="outlined"
             size="small"
+            value={shortDescription}
             onChange={(e) => setShortDescription(e.target.value)}
           />
         </div>
@@ -129,10 +141,8 @@ const Description = () => {
             style={{ height: "150px" }}
             modules={modules}
             formats={formats}
+            value={description}
             onChange={(e) => setDescription(e)}
-          // value={editorValue}
-          // {...restProps}
-          // onChange={handleEditorChange}
           />
         </div>
       </div>

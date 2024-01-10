@@ -1,10 +1,34 @@
 import { Button, TextField } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 const Titel = () => {
   const [title, setTitle] = useState("");
   const navigate = useNavigate(); // Move useNavigate outside the function
-
+  const _id = localStorage.getItem("_id");
+  const [id, setID] = useState(_id);
+  useEffect(() => {
+    (async function () {
+      try {
+        if (id) {
+          const response = await fetch(
+            `http://127.0.0.1:3232/experience/${id}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const responseJson = await response.json();
+          console.log(responseJson, "responseJson");
+          setTitle(responseJson.title);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    })();
+    //fetchData();
+  }, []);
   const createExperience = async () => {
     if (!title) return;
     console.log(title);
@@ -70,6 +94,7 @@ const Titel = () => {
         <TextField
           onChange={(e) => setTitle(e.target.value)}
           fullWidth
+          value={title}
           id="outlined-basic"
           label="Titel"
           variant="outlined"

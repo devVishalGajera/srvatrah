@@ -42,38 +42,52 @@ export const formats = [
 
 const Inclusions = () => {
   const location = useLocation();
-  const { title, _id } = location.state ? location.state : {};
   const navigate = useNavigate();
-  const [experienceId, setExperienceId] = useState("");
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
   const [short_description, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${experienceId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        const { inclusions } = responseJson;
+        if (!inclusions) {
+          return;
+        }
+        setShortDescription(inclusions.short_des);
+        setDescription(inclusions.detail_dec);
+      })();
       return;
     }
     if (!experienceId) {
       alert("please add titel and categories");
       navigate("/titel");
     }
-  });
+  }, []);
   const submit = async () => {
     const data = {
-      short_des: short_description,
-      detail_dec: description,
+      inclusions: { short_des: short_description, detail_dec: description },
     };
-    const response = await fetch(`http://127.0.0.1:3232/experience/${_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      `http://127.0.0.1:3232/experience/${experienceId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
     const responseJson = await response.json();
     if (!response.ok) {
       alert(responseJson.error);
@@ -126,6 +140,7 @@ const Inclusions = () => {
             id="outlined-basic"
             variant="outlined"
             size="small"
+            value={short_description}
             onChange={(e) => setShortDescription(e.target.value)}
           />
         </div>
@@ -138,10 +153,11 @@ const Inclusions = () => {
             style={{ height: "150px" }}
             modules={modules}
             formats={formats}
+            value={description}
             onChange={(e) => setDescription(e)}
-          // value={editorValue}
-          // {...restProps}
-          // onChange={handleEditorChange}
+            // value={editorValue}
+            // {...restProps}
+            // onChange={handleEditorChange}
           />
         </div>
       </div>
@@ -155,7 +171,9 @@ const Inclusions = () => {
         }}
       >
         <Button variant="outlined">Back</Button>
-        <Button variant="contained" onClick={submit}>Continue</Button>
+        <Button variant="contained" onClick={submit}>
+          Continue
+        </Button>
       </div>
     </div>
   );

@@ -1,3 +1,602 @@
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Switch,
+} from "@mui/material";
+import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+const OpeningHours = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    (async function () {
+      const data = await fetch(
+        `http://127.0.0.1:3232/experience/${experienceId}/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const result = await data.json();
+      const { availability_detail } = result;
+      if (availability_detail && availability_detail.length > 0) {
+        console.log(availability_detail);
+        setShowDefaultOperatingHours(true);
+        const newData = availability_detail.map((day) => {
+          const key = Object.keys(day)[0];
+          const keys = day.day;
+
+          const openHour = day.openHour;
+          const closeHour = day.closeHour;
+          const open24Hours = day.open24Hours;
+          return {
+            [keys]: {
+              openHour,
+              closeHour,
+              open24Hours: open24Hours ? open24Hours : false,
+              isOpen: true,
+            },
+          };
+        });
+        console.log(newData);
+        setData(newData);
+        return;
+      }
+      if (!experienceId && experienceId.length === 0) {
+        alert("please add titel and categories");
+        navigate("/titel");
+        return;
+      }
+    })();
+    if (!experienceId && experienceId.length === 0) {
+      alert("please add titel and categories");
+      navigate("/titel");
+    }
+  }, []);
+  const [showDefaultOperatingHours, setShowDefaultOperatingHours] =
+    useState(false);
+  const createOpeningHours = async () => {
+    if (!showDefaultOperatingHours) {
+      navigate("/timeDatePass", {
+        state: {
+          ...{},
+        },
+      });
+      return;
+    }
+    if (data.length === 0) {
+      alert("please fill in all the fields");
+      return;
+    }
+    const formattedAvailability = [];
+    data.forEach((day) => {
+      const key = Object.keys(day)[0];
+      const openHour = day[key].openHour;
+      const closeHour = day[key].closeHour;
+      const open24Hours = day[key].open24Hours;
+      const availabilityData = {
+        day: Object.keys(day)[0],
+        isOpen: true,
+        is24Hours: day[key].open24Hours || false,
+        openHour: open24Hours ? "00:00" : openHour,
+        closeHour: open24Hours ? "00:00" : closeHour,
+      };
+      formattedAvailability.push(availabilityData);
+    });
+    console.log("formattedAvailability", formattedAvailability);
+    const data2 = {
+      availability_detail: formattedAvailability,
+    };
+    const response = await fetch(
+      `http://127.0.0.1:3232/experience/updateAvailability/${experienceId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data2),
+      }
+    );
+    const result = await response.json();
+    if (result) {
+      navigate("/bookingCutoff", {
+        state: {
+          ...{},
+        },
+      });
+    }
+  };
+  const checkboxOnchange = (e, dayName) => {
+    console.log("checkboxOnchange", e);
+    const check = e.target.checked;
+    console.log("data1", data);
+
+    setData((a) =>
+      check
+        ? [
+            ...a,
+            {
+              [dayName]: {
+                openHour: "00:00",
+                closeHour: "00:00",
+                isOpen: true,
+              },
+            },
+          ]
+        : a.filter((item) => !item[dayName])
+    );
+    // console.log("data", data);
+  };
+
+  const timeOnchange = (dayName, type) => (time) => {
+    console.log("timeOnchange", time.format());
+    setData((a) =>
+      a.map((item) =>
+        item[dayName] ? { [dayName]: { ...item[dayName], [type]: time } } : item
+      )
+    );
+  };
+  const onIs24HoursChange = (dayName) => (e) => {
+    console.log("onIs24HoursChange", e.target.checked);
+    setData((a) =>
+      e.target.checked
+        ? [
+            ...a,
+            {
+              [dayName]: {
+                openHour: "00:00",
+                closeHour: "00:00",
+                open24Hours: true,
+              },
+            },
+          ]
+        : a.filter((item) => !item[dayName])
+    );
+  };
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "20px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "20px",
+          marginBottom: "30px",
+        }}
+      >
+        <h2 style={{ fontWeight: "bold", padding: "5px" }}>
+          Is your experience only offered during specific hours?
+        </h2>
+        <p style={{ padding: "5px" }}>
+          Your travellers will be able to see this information on their ticket
+          once they have booked the experience
+        </p>
+      </div>
+
+      <div style={{ width: "70%" }}>
+        <h5>Enable operating hours</h5>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showDefaultOperatingHours}
+                onChange={() => setShowDefaultOperatingHours((prev) => !prev)}
+              />
+            }
+            label="Show operating hours for this experience in your product pages"
+          />
+        </FormGroup>
+      </div>
+
+      {showDefaultOperatingHours && (
+        <div
+          style={{
+            width: "90%",
+            border: "1px solid #DEE3EA",
+            borderRadius: "7px",
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              padding: "10px",
+              background: "#DEE3EA",
+              borderBottom: "1px solid black",
+              borderRadius: "7px",
+            }}
+          >
+            Default operating hours
+          </div>
+          <div style={{ padding: "10px", fontStyle: "italic" }}>
+            These operating hours are always used, unless you override them with
+            seasonal operating hours below.
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              border: "1px solid black",
+              borderRadius: "7px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => {
+                      console.log(e.target.checked);
+                      checkboxOnchange(e, "Monday");
+                    }}
+                    checked={
+                      data && data.length > 0
+                        ? data.find((item) => item.Monday)
+                          ? true
+                          : false
+                        : false
+                    }
+                  />
+                }
+                label="Monday"
+              />
+            </FormGroup>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  value={data[0]?.Monday?.openHour}
+                  onChange={(e) => timeOnchange("Monday", "openHour")(e)}
+                  size="small"
+                  label="From"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Monday", "closeHour")(e)}
+                  size="small"
+                  label="To"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => onIs24HoursChange("Monday")(e)}
+                    checked={data[0]?.Monday?.open24Hours}
+                  />
+                }
+                label="Open 24 hours"
+              />
+            </FormGroup>
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              border: "1px solid black",
+              borderRadius: "7px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => checkboxOnchange(e, "Tuesday")} />
+                }
+                label="Tuesday"
+              />
+            </FormGroup>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Tuesday", "openHour")(e)}
+                  size="small"
+                  label="From"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Tuesday", "closeHour")(e)}
+                  size="small"
+                  label="To"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => onIs24HoursChange("Tuesday")(e)} />
+                }
+                label="Open 24 hours"
+              />
+            </FormGroup>
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              border: "1px solid black",
+              borderRadius: "7px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => checkboxOnchange(e, "Wednesday")}
+                  />
+                }
+                label="Wednesday"
+              />
+            </FormGroup>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Wednesday", "openHour")(e)}
+                  size="small"
+                  label="From"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Wednesday", "closeHour")(e)}
+                  size="small"
+                  label="To"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => onIs24HoursChange("Wednesday")(e)}
+                  />
+                }
+                label="Open 24 hours"
+              />
+            </FormGroup>
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              border: "1px solid black",
+              borderRadius: "7px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => checkboxOnchange(e, "Thursday")} />
+                }
+                label="Thursday"
+              />
+            </FormGroup>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Thursday", "openHour")(e)}
+                  size="small"
+                  label="From"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Thursday", "closeHour")(e)}
+                  size="small"
+                  label="To"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => onIs24HoursChange("Thursday")(e)}
+                  />
+                }
+                label="Open 24 hours"
+              />
+            </FormGroup>
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              border: "1px solid black",
+              borderRadius: "7px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => checkboxOnchange(e, "Friday")} />
+                }
+                label="Friday"
+              />
+            </FormGroup>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Friday", "openHour")(e)}
+                  size="small"
+                  label="From"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Friday", "closeHour")(e)}
+                  size="small"
+                  label="To"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => onIs24HoursChange("Friday")(e)} />
+                }
+                label="Open 24 hours"
+              />
+            </FormGroup>
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              border: "1px solid black",
+              borderRadius: "7px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => checkboxOnchange(e, "Saturday")} />
+                }
+                label="Saturday"
+              />
+            </FormGroup>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Saturday", "openHour")(e)}
+                  size="small"
+                  label="From"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Saturday", "closeHour")(e)}
+                  size="small"
+                  label="To"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={(e) => onIs24HoursChange("Saturday")(e)}
+                  />
+                }
+                label="Open 24 hours"
+              />
+            </FormGroup>
+          </div>
+          <div
+            style={{
+              padding: "10px",
+              border: "1px solid black",
+              borderRadius: "7px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => checkboxOnchange(e, "Sunday")} />
+                }
+                label="Sunday"
+              />
+            </FormGroup>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Sunday", "openHour")(e)}
+                  size="small"
+                  label="From"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={["TimePicker"]}>
+                <TimePicker
+                  onChange={(e) => timeOnchange("Sunday", "closeHour")(e)}
+                  size="small"
+                  label="To"
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox onChange={(e) => onIs24HoursChange("Sunday")(e)} />
+                }
+                label="Open 24 hours"
+              />
+            </FormGroup>
+          </div>
+        </div>
+      )}
+
+      <div
+        style={{
+          width: "70%",
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "150px",
+        }}
+      >
+        <Button variant="outlined">Back</Button>
+        <Button variant="contained" onClick={createOpeningHours}>
+          Continue
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default OpeningHours;
+
 // import React, { useState, useEffect } from "react";
 // import {
 //   Button,
@@ -310,361 +909,3 @@
 // };
 
 // export default OpeningHours;
-
-import {
-  Button,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Switch,
-  TextField,
-} from "@mui/material";
-import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-const OpeningHours = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { _id } = location.state ? location.state : {};
-  const [experienceId, setExperienceId] = useState("");
-  const [OpeningHours, setOpeningHours] = useState([]);
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
-      return;
-    }
-    if (!experienceId && experienceId.length === 0) {
-      alert("please add titel and categories");
-      navigate("/titel");
-      return;
-    }
-  });
-  const [showDefaultOperatingHours, setShowDefaultOperatingHours] =
-    useState(false);
-  const createOpeningHours = async () => {
-    if (showDefaultOperatingHours) {
-      navigate("/timeDatePass", {
-        state: {
-          ...{},
-        },
-      });
-      return;
-    }
-    const data = {};
-  };
-  const checkboxOnchange = (e, dayName) => (e) => {
-    console.log("checkboxOnchange", e);
-    const check = e.target.checked;
-
-    setData((a) =>
-      check
-        ? [...a, { [dayName]: { from: "00:00", to: "00:00" } }]
-        : a.filter((item) => !item[dayName])
-    );
-    console.log("data", data);
-  };
-
-  const timeOnchange = (dayName, type) => (time) => {
-    setData((a) =>
-      a.map((item) =>
-        item[dayName] ? { [dayName]: { ...item[dayName], [type]: time } } : item
-      )
-    );
-  };
-  // const onSelectDay = (day) => {
-  //
-  // }
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          padding: "20px",
-          marginBottom: "30px",
-        }}
-      >
-        <h2 style={{ fontWeight: "bold", padding: "5px" }}>
-          Is your experience only offered during specific hours?
-        </h2>
-        <p style={{ padding: "5px" }}>
-          Your travellers will be able to see this information on their ticket
-          once they have booked the experience
-        </p>
-      </div>
-
-      <div style={{ width: "70%" }}>
-        <h5>Enable operating hours</h5>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showDefaultOperatingHours}
-                onChange={() => setShowDefaultOperatingHours((prev) => !prev)}
-              />
-            }
-            label="Show operating hours for this experience in your product pages"
-          />
-        </FormGroup>
-      </div>
-
-      {showDefaultOperatingHours && (
-        <div
-          style={{
-            width: "90%",
-            border: "1px solid #DEE3EA",
-            borderRadius: "7px",
-            padding: "20px",
-          }}
-        >
-          <div
-            style={{
-              padding: "10px",
-              background: "#DEE3EA",
-              borderBottom: "1px solid black",
-              borderRadius: "7px",
-            }}
-          >
-            Default operating hours
-          </div>
-          <div style={{ padding: "10px", fontStyle: "italic" }}>
-            These operating hours are always used, unless you override them with
-            seasonal operating hours below.
-          </div>
-          <div
-            style={{
-              padding: "10px",
-              border: "1px solid black",
-              borderRadius: "7px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "10px",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox onChange={checkboxOnchange("Monday")} />}
-                label="Monday"
-              />
-            </FormGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="From" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="To" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Open 24 hours" />
-            </FormGroup>
-          </div>
-          <div
-            style={{
-              padding: "10px",
-              border: "1px solid black",
-              borderRadius: "7px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "10px",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Tuesday" />
-            </FormGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="From" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="To" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Open 24 hours" />
-            </FormGroup>
-          </div>
-          <div
-            style={{
-              padding: "10px",
-              border: "1px solid black",
-              borderRadius: "7px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "10px",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Wednesday" />
-            </FormGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="From" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="To" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Open 24 hours" />
-            </FormGroup>
-          </div>
-          <div
-            style={{
-              padding: "10px",
-              border: "1px solid black",
-              borderRadius: "7px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "10px",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Thursday" />
-            </FormGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="From" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="To" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Open 24 hours" />
-            </FormGroup>
-          </div>
-          <div
-            style={{
-              padding: "10px",
-              border: "1px solid black",
-              borderRadius: "7px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "10px",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Friday" />
-            </FormGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="From" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="To" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Open 24 hours" />
-            </FormGroup>
-          </div>
-          <div
-            style={{
-              padding: "10px",
-              border: "1px solid black",
-              borderRadius: "7px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "10px",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Saturday" />
-            </FormGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="From" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="To" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Open 24 hours" />
-            </FormGroup>
-          </div>
-          <div
-            style={{
-              padding: "10px",
-              border: "1px solid black",
-              borderRadius: "7px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "10px",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Sunday" />
-            </FormGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="From" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="To" />
-              </DemoContainer>
-            </LocalizationProvider>
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Open 24 hours" />
-            </FormGroup>
-          </div>
-        </div>
-      )}
-
-      <div
-        style={{
-          width: "70%",
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: "150px",
-        }}
-      >
-        <Button variant="outlined">Back</Button>
-        <Button variant="contained" onClick={createOpeningHours}>
-          Continue
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-export default OpeningHours;

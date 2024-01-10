@@ -4,47 +4,59 @@ import { useLocation, useNavigate } from "react-router-dom";
 const Categories = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { _id } = location?.state ? location.state : {};
-  const [categoriesdata, setCategories] = useState("");
-  const [themedata, setTheme] = useState("");
-  const [experienceId, setExperienceId] = useState("");
+  const categories = [{ label: "The Godfather" }, { label: "Pulp Fiction" }];
+  const theme = [{ label: "Drama" }, { label: "Action" }];
+  const [categoriesdata, setCategories] = useState([]);
+  const [themedata, setTheme] = useState([]);
+  const _id = localStorage.getItem("_id") || "";
+  const [experienceId, setExperienceId] = useState(_id);
+
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId && experienceId.length > 0) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${experienceId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        setCategories(responseJson.category ? [responseJson.category] : []);
+        setTheme(
+          responseJson.category_theme ? [responseJson.category_theme.theme] : []
+        );
+      })();
       return;
     }
     if (!experienceId && experienceId.length === 0) {
       alert("please add titel and categories");
       navigate("/titel");
     }
-  });
+  }, []);
   const submit = async () => {
-    const query = new URLSearchParams();
-    console.log(themedata, "themedata");
-    if (!categoriesdata) {
+    if (!categoriesdata.length) {
       alert("Please enter the categories");
       return;
     }
-    if (!themedata) {
+    if (!themedata.length) {
       alert("Please enter the theme");
       return;
     }
-    console.log(themedata, "themedata");
-    query.append("category", categoriesdata);
+
+    const query = new URLSearchParams();
+    query.append("category", categoriesdata[0].label);
     query.append(
       "category_theme",
       JSON.stringify({
-        category: categoriesdata,
-        theme: themedata,
+        category: categoriesdata[0].label,
+        theme: themedata[0].label,
       })
     );
-    query.append("theme", themedata);
-    console.log(query.toString(), "query");
+    query.append("theme", themedata[0].label);
+
     const response = await fetch(
       `http://127.0.0.1:3232/experience/${_id}?${query.toString()}`,
       {
@@ -54,29 +66,80 @@ const Categories = () => {
         },
         body: JSON.stringify({
           category_theme: {
-            category: categoriesdata,
-            theme: themedata,
+            category: categoriesdata[0].label,
+            theme: themedata[0].label,
           },
         }),
       }
     );
+
     const responseJson = await response.json();
     if (!response.ok) {
       alert(responseJson.message);
       return;
     }
+
     navigate("/description", {
       state: {
         ...responseJson,
       },
     });
   };
-  const onChangeCategory = (e) => {
-    setCategories(categories[e.target.value].label);
-  }
-  const onChangeTheme = (e) => {
-    setTheme(theme[e.target.value].label);
-  }
+
+  // const submit = async () => {
+  //   const query = new URLSearchParams();
+  //   console.log(themedata, "themedata");
+  //   if (!categoriesdata) {
+  //     alert("Please enter the categories");
+  //     return;
+  //   }
+  //   if (!themedata) {
+  //     alert("Please enter the theme");
+  //     return;
+  //   }
+  //   console.log(themedata, "themedata");
+  //   query.append("category", categoriesdata);
+  //   query.append(
+  //     "category_theme",
+  //     JSON.stringify({
+  //       category: categoriesdata.label,
+  //       theme: themedata.label,
+  //     })
+  //   );
+  //   query.append("theme", themedata);
+  //   console.log(query.toString(), "query");
+  //   const response = await fetch(
+  //     `http://127.0.0.1:3232/experience/${_id}?${query.toString()}`,
+  //     {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         category_theme: {
+  //           category: categoriesdata,
+  //           theme: themedata,
+  //         },
+  //       }),
+  //     }
+  //   );
+  //   const responseJson = await response.json();
+  //   if (!response.ok) {
+  //     alert(responseJson.message);
+  //     return;
+  //   }
+  //   navigate("/description", {
+  //     state: {
+  //       ...responseJson,
+  //     },
+  //   });
+  // };
+  const onChangeCategory = (_, value) => {
+    setCategories(value ? [value] : []);
+  };
+  const onChangeTheme = (_, value) => {
+    setTheme(value ? [value] : []);
+  };
   //   const selectedValues = React.useMemo(
   //     () => allValues.filter((v) => v.selected),
   //     [allValues]
@@ -119,6 +182,12 @@ const Categories = () => {
             id="combo-box-demo"
             options={categories}
             onChange={onChangeCategory}
+            // value={categoriesdata}
+            value={
+              categoriesdata && categoriesdata.length > 0
+                ? categoriesdata[0]
+                : null
+            }
             // sx={{ width: 300 }}
             renderInput={(params) => <TextField {...params} />}
           />
@@ -133,6 +202,7 @@ const Categories = () => {
             id="combo-box-demo"
             options={theme}
             onChange={onChangeTheme}
+            value={themedata && themedata.length > 0 ? themedata[0] : null}
             // sx={{ width: 300 }}
             renderInput={(params) => <TextField {...params} />}
           />

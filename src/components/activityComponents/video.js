@@ -8,16 +8,28 @@ const Videos = () => {
   const navigate = useNavigate();
   const { _id } = location.state ? location.state : {};
   const [videoLinks, setVideoLinks] = useState([""]);
-  const [experienceId, setExperienceId] = useState("");
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
 
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId && experienceId.length > 0) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${experienceId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        const { video_link } = responseJson;
+        if (!video_link && video_link.length === 0) {
+          return;
+        }
+        setVideoLinks(video_link);
+      })();
       return;
     }
     if (!experienceId && experienceId.length === 0) {
@@ -25,7 +37,7 @@ const Videos = () => {
       navigate("/titel");
       return;
     }
-  });
+  }, []);
   const submit = async () => {
     const data = {
       video_link: videoLinks,

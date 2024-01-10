@@ -12,16 +12,33 @@ const TimeDatePass = () => {
   const [type, setType] = useState("date_time");
   const location = useLocation();
   const navigate = useNavigate();
-  const { _id } = location.state ? location.state : {};
-  const [experienceId, setExperienceId] = useState("");
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId && experienceId.length > 0) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${experienceId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        console.log(responseJson, "responseJson");
+        if (
+          !responseJson.availabilityType ||
+          (responseJson.availabilityType &&
+            responseJson.availabilityType.length === 0)
+        ) {
+          console.log("test");
+          return;
+        }
+        setType(responseJson.availabilityType);
+      })();
+
       return;
     }
     if (!experienceId && experienceId.length === 0) {
@@ -29,19 +46,22 @@ const TimeDatePass = () => {
       navigate("/titel");
       return;
     }
-  });
+  }, []);
 
   const submit = async () => {
     const data = {
-      type: type,
+      availabilityType: type,
     };
-    const response = await fetch(`http://127.0.0.1:3232/experience/${_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      `http://127.0.0.1:3232/experience/${experienceId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
     const responseJson = await response.json();
     if (!response.ok) {
       alert(responseJson.error);
@@ -85,6 +105,8 @@ const TimeDatePass = () => {
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="female"
             name="radio-buttons-group"
+            onChange={(e) => setType(e.target.value)}
+            value={type}
           >
             <div
               style={{

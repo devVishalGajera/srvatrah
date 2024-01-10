@@ -4,17 +4,32 @@ import { useLocation, useNavigate } from "react-router-dom";
 const LocationDetails = () => {
   const state = useLocation();
   const navigate = useNavigate();
-  const [locationdata, setLocation] = useState("");
-  const { _id } = state.state ? state.state : localStorage.getItem("_id");
-  const [experienceId, setExperienceId] = useState("");
+  const [locationdata, setLocation] = useState({
+    location: "",
+    city: "",
+    state: "",
+  });
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId);
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId) {
+      (async function () {
+        const response = await fetch(
+          `http://127.0.0.1:3232/experience/${experienceId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        console.log(responseJson, "responseJson");
+        if (!responseJson.location) {
+          return;
+        }
+        setLocation(responseJson.location);
+      })();
       return;
     }
     if (!experienceId) {
@@ -30,8 +45,12 @@ const LocationDetails = () => {
       alert("Please enter the location");
       return;
     }
+    const data = {
+      location: locationdata,
+    };
+
     const response = await fetch(
-      `http://127.0.0.1:3232/experience/${_id}?${query.toString()}`,
+      `http://127.0.0.1:3232/experience/${experienceId}?${query.toString()}`,
       {
         method: "PUT",
         headers: {
@@ -82,10 +101,37 @@ const LocationDetails = () => {
         <TextField
           fullWidth
           id="outlined-basic"
-          label="location"
+          label="location link"
           variant="outlined"
-          onChange={(e) => setLocation(e.target.value)}
+          value={locationdata.location}
+          onChange={(e) =>
+            setLocation((prev) => ({ ...prev, location: e.target.value }))
+          }
         />
+        <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+          <TextField
+            fullWidth
+            id="outlined-basic"
+            label="City"
+            variant="outlined"
+            value={locationdata.city}
+            onChange={(e) =>
+              setLocation((prev) => ({ ...prev, city: e.target.value }))
+            }
+            // onChange={(e) => setLocation(e.target.value)}
+          />
+          <TextField
+            fullWidth
+            id="outlined-basic"
+            label="State"
+            variant="outlined"
+            value={locationdata.state}
+            onChange={(e) =>
+              setLocation((prev) => ({ ...prev, state: e.target.value }))
+            }
+            // onChange={(e) => setLocation(e.target.value)}
+          />
+        </div>
       </div>
 
       <div
