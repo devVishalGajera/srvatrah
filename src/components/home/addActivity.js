@@ -1,26 +1,33 @@
-
-import React from 'react';
-import '../../assets/css/app.min.css';
-import '../../assets/css/bootstrap.min.css';
-import '../../assets/css/addActivity.css'
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import { useState } from 'react';
-import Cookies from 'js-cookie';
-import { Accordion, AccordionDetails, AccordionSummary, FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, Switch, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React from "react";
+import "../../assets/css/app.min.css";
+import "../../assets/css/bootstrap.min.css";
+import "../../assets/css/addActivity.css";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import { useState } from "react";
+import Cookies from "js-cookie";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Switch,
+  Typography,
+} from "@mui/material";
+import { Link } from "react-router-dom";
 
 const AddActivity = () => {
   return (
     <Box display="flex" flexDirection="row">
       {/* Left Side Menu */}
-      <Box
-        bgcolor="primary.main"
-        color="white"
-        p={2}
-        minWidth={250}
-      >
+      <Box bgcolor="primary.main" color="white" p={2} minWidth={250}>
         <div>
           <Accordion>
             <AccordionSummary
@@ -28,35 +35,35 @@ const AddActivity = () => {
               aria-controls="panel1a-content"
               id="panel1a-header"
             >
-              <Typography style={{ fontWeight: 'bold' }}>Experince</Typography>
+              <Typography style={{ fontWeight: "bold" }}>Experince</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Link to={'/titel'}>
-                <Typography className='menuItem'>Title</Typography>
+              <Link to={"/titel"}>
+                <Typography className="menuItem">Title</Typography>
               </Link>
-              <Link to={'/duration'}>
-                <Typography className='menuItem'>Duration</Typography>
+              <Link to={"/duration"}>
+                <Typography className="menuItem">Duration</Typography>
               </Link>
-              <Link to={'/location'}>
-                <Typography className='menuItem'>Location</Typography>
+              <Link to={"/location"}>
+                <Typography className="menuItem">Location</Typography>
               </Link>
-              <Link to={'/categories'}>
-                <Typography className='menuItem'>Category & Themes</Typography>
+              <Link to={"/categories"}>
+                <Typography className="menuItem">Category & Themes</Typography>
               </Link>
-              <Link to={'/description'}>
-                <Typography className='menuItem'>Description</Typography>
+              <Link to={"/description"}>
+                <Typography className="menuItem">Description</Typography>
               </Link>
-              <Link to={'/inclusions'}>
-                <Typography className='menuItem'>Inclusions</Typography>
+              <Link to={"/inclusions"}>
+                <Typography className="menuItem">Inclusions</Typography>
               </Link>
-              <Link to={'/exclusions'}>
-                <Typography className='menuItem'>Exclusions</Typography>
+              <Link to={"/exclusions"}>
+                <Typography className="menuItem">Exclusions</Typography>
               </Link>
-              <Link to={'/photos'}>
-                <Typography className='menuItem'>Photos</Typography>
+              <Link to={"/photos"}>
+                <Typography className="menuItem">Photos</Typography>
               </Link>
-              <Link to={'/videos'}>
-                <Typography className='menuItem'>Videos</Typography>
+              <Link to={"/videos"}>
+                <Typography className="menuItem">Videos</Typography>
               </Link>
             </AccordionDetails>
           </Accordion>
@@ -66,26 +73,33 @@ const AddActivity = () => {
               aria-controls="panel2a-content"
               id="panel2a-header"
             >
-              <Typography style={{ fontWeight: 'bold' }}>Availability</Typography>
+              <Typography style={{ fontWeight: "bold" }}>
+                Availability
+              </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Link to={'/timeDatePass'}>
-                <Typography className='menuItem'>Time, Date or Pass</Typography>
+              <Link to={"/timeDatePass"}>
+                <Typography className="menuItem">Time, Date or Pass</Typography>
               </Link>
-              <Link to={'/openingHours'}>
-                <Typography className='menuItem'>OpeningHours</Typography>
+              <Link to={"/openingHours"}>
+                <Typography className="menuItem">OpeningHours</Typography>
               </Link>
-              <Link to={'/bookingCutoff'}>
-                <Typography className='menuItem'>Booking cutoff</Typography>
+              <Link to={"/bookingCutoff"}>
+                <Typography className="menuItem">Booking cutoff</Typography>
               </Link>
-              <Link to={'/bookingOpeningDate'}>
-                <Typography className='menuItem'>Booking Opening date</Typography>
+              <Link to={"/bookingOpeningDate"}>
+                <Typography className="menuItem">
+                  Booking Opening date
+                </Typography>
               </Link>
-              <Link to={'/capacity'}>
-                <Typography className='menuItem'>Capacity</Typography>
+              <Link to={"/capacity"}>
+                <Typography className="menuItem">Capacity</Typography>
               </Link>
-              <Link to={'/startTime'}>
-                <Typography className='menuItem'>Start Time</Typography>
+              <Link to={"/startTime"}>
+                <Typography className="menuItem">Start Time</Typography>
+              </Link>
+              <Link to={"/calendar"}>
+                <Typography className="menuItem">End Time</Typography>
               </Link>
             </AccordionDetails>
           </Accordion>
@@ -95,11 +109,11 @@ const AddActivity = () => {
               aria-controls="panel3a-content"
               id="panel3a-header"
             >
-              <Typography style={{ fontWeight: 'bold' }}>Pricing</Typography>
+              <Typography style={{ fontWeight: "bold" }}>Pricing</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Link to={'/pricingCategories'}>
-                <Typography className='menuItem'>Pricing-Categories</Typography>
+              <Link to={"/pricingCategories"}>
+                <Typography className="menuItem">Pricing-Categories</Typography>
               </Link>
               {/* <Link to={'/rates'}> */}
               {/*   <Typography className='menuItem'>Rates</Typography> */}
@@ -115,33 +129,28 @@ const AddActivity = () => {
               aria-controls="panel4a-content"
               id="panel4a-header"
             >
-              <Typography style={{ fontWeight: 'bold' }}>Meeting & Pick up</Typography>
+              <Typography style={{ fontWeight: "bold" }}>
+                Meeting & Pick up
+              </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Link to={'/meetingPickup'}>
-                <Typography className='menuItem'>How To Get There ?</Typography>
+              <Link to={"/meetingPickup"}>
+                <Typography className="menuItem">How To Get There ?</Typography>
               </Link>
-              <Link to={'/meetingPoint'}>
-                <Typography className='menuItem'>Meeting Point</Typography>
+              <Link to={"/meetingPoint"}>
+                <Typography className="menuItem">Meeting Point</Typography>
               </Link>
-              <Typography className='menuItem'>
-                Drop-off Service
-              </Typography>
+              <Typography className="menuItem">Drop-off Service</Typography>
             </AccordionDetails>
           </Accordion>
         </div>
         {/* Add more menu items as needed */}
       </Box>
-
-
-
     </Box>
   );
 };
 
 export default AddActivity;
-
-
 
 // import React from 'react'
 // import '../../assets/css/app.min.css'
@@ -153,8 +162,6 @@ export default AddActivity;
 // // import jwt from 'react-jwt';
 // import Cookies from 'js-cookie';
 // import { FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, Switch } from '@mui/material';
-
-
 
 // const AddActivity = () => {
 //   const [formData, setFormData] = useState({
@@ -231,7 +238,6 @@ export default AddActivity;
 //     });
 //   };
 
-
 //   const handleInputChange = (key, value) => {
 //     setFormData((prevData) => ({
 //       ...prevData,
@@ -254,7 +260,6 @@ export default AddActivity;
 //       [`${key}Price`]: '',
 //     }));
 //   };
-
 
 //   const handleAgeCheckBoxChange = (type) => {
 //     setFormData((prevData) => {
@@ -355,7 +360,6 @@ export default AddActivity;
 //       return { ...prevData, availableVehicle: updatedVehicles };
 //     });
 //   };
-
 
 //   const handleImageChange = (event) => {
 //     const file = event.target.files[0];
@@ -719,7 +723,6 @@ export default AddActivity;
 //           </div>
 //         </div>
 
-
 //         <div className="card-body">
 //           <div className="live-preview">
 //             <div className="row g-3">
@@ -949,8 +952,6 @@ export default AddActivity;
 //                 </FormControl>
 //               </div>
 
-
-
 //               <div className="" >
 //                 <label htmlFor="openingHours" className="form-label">
 //                   Operating Hours
@@ -1010,21 +1011,13 @@ export default AddActivity;
 //               </div>
 //             </div>
 
-
 //           </div>
 //         </div>
-
-
-
-
-
-
 
 //         <div style={{ display: 'flex', justifyContent: 'end', padding: '15px', borderTop: '1px solid #f1f1f1' }}>
 //           <button className="btn btn-primary btn-border" onClick={handleSubmit}>Submit</button>
 //         </div>
 //       </div>
-
 
 //     </div >
 //   );
