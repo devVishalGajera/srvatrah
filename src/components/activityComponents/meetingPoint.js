@@ -45,8 +45,8 @@ const style = {
 const MeetingPoint = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { _id } = location.state ? location.state : {};
-  const [experienceId, setExperienceId] = useState("");
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -68,20 +68,45 @@ const MeetingPoint = () => {
     },
   ]);
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId && experienceId.length > 0) {
+      (async function () {
+        const response = await fetch(
+          "http://localhost:3232/experience/" + experienceId,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const { meeting_point } = await response.json();
+        console.log(meeting_point);
+        if (meeting_point && meeting_point.length > 0) {
+          setRows(meeting_point);
+        } else {
+          setRows([
+            {
+              titel: "mota-varaccha",
+              address: "mota-varacha",
+              country: "India",
+              city: "Delhi",
+              pin_code: "110001",
+            },
+          ]);
+        }
+        // if (!traveller_facilty) {
+        //   setMeetingOption("meet_on_location");
+        // } else {
+        //   setMeetingOption(traveller_facilty);
+        // }
+      })();
       return;
     }
     if (!experienceId) {
       alert("Please fill in all the fields");
       return;
     }
-  });
+  }, []);
 
   const createMeetingPoint = async () => {
     if (editingIndex >= 0) {
@@ -118,8 +143,15 @@ const MeetingPoint = () => {
     handleClose();
   };
   const submit = async () => {
+    const formatedRowWithoutId = rows.map((row) => {
+      const { _id, ...rest } = row;
+      return rest;
+    });
+    const removeIds = rows.filter((row) => row._id).map((row) => row._id);
+    console.log(removeIds);
     const data = {
-      meeting_point: rows,
+      meeting_point: formatedRowWithoutId,
+      removeIds: removeIds,
     };
     const response = await fetch(
       "http://127.0.0.1:3232/experience/meetingPoint/" + experienceId,

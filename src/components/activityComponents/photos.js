@@ -21,11 +21,11 @@ const Photos = () => {
           }
         );
         const responseJson = await response.json();
-        const { photos } = responseJson;
-        if (!photos && photos.length === 0) {
+        const { img_link } = responseJson;
+        if (!img_link && img_link.length === 0) {
           return;
         }
-        setPhotos(photos);
+        setPhotos(img_link);
       })();
       return;
     }
@@ -36,7 +36,11 @@ const Photos = () => {
   }, []);
   const submit = async () => {
     const data = {
-      photos: photos,
+      img_link: {
+        filename: photos.filename,
+        path: photos,
+        mimetype: photos.mimetype,
+      },
     };
     const response = await fetch(
       `http://127.0.0.1:3232/experience/${experienceId}`,

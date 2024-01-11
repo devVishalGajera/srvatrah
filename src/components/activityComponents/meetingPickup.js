@@ -12,23 +12,35 @@ const MeetingPickup = () => {
   const [meetingOption, setMeetingOption] = useState("meet_on_location");
   const location = useLocation();
   const navigate = useNavigate();
-  const { _id } = location.state ? location.state : {};
-  const [experienceId, setExperienceId] = useState("");
+  const localId = localStorage.getItem("_id");
+
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localId) {
-      setExperienceId(localId);
+    if (experienceId && experienceId.length > 0) {
+      (async function () {
+        const response = await fetch(
+          "http://localhost:3232/experience/" + experienceId,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const { traveller_facilty } = await response.json();
+        if (!traveller_facilty) {
+          setMeetingOption("meet_on_location");
+        } else {
+          setMeetingOption(traveller_facilty);
+        }
+      })();
       return;
     }
     if (!experienceId) {
       alert("Please fill in all the fields");
       return;
     }
-  });
+  }, []);
   const submit = async () => {
     const response = await fetch(
       "http://localhost:3232/experience/" + experienceId,

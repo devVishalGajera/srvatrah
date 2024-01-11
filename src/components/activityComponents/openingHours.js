@@ -10,6 +10,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 const OpeningHours = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -263,7 +264,13 @@ const OpeningHours = () => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DemoContainer components={["TimePicker"]}>
                 <TimePicker
-                  value={data[0]?.Monday?.openHour}
+                  value={
+                    data && data.length > 0
+                      ? dayjs(
+                          data.find((item) => item.Monday)?.Monday?.openHour
+                        )
+                      : null
+                  }
                   onChange={(e) => timeOnchange("Monday", "openHour")(e)}
                   size="small"
                   label="From"
@@ -274,6 +281,13 @@ const OpeningHours = () => {
               <DemoContainer components={["TimePicker"]}>
                 <TimePicker
                   onChange={(e) => timeOnchange("Monday", "closeHour")(e)}
+                  value={
+                    data && data.length > 0
+                      ? dayjs(
+                          data.find((item) => item.Monday)?.Monday?.closeHour
+                        )
+                      : null
+                  }
                   size="small"
                   label="To"
                 />
@@ -284,7 +298,11 @@ const OpeningHours = () => {
                 control={
                   <Checkbox
                     onChange={(e) => onIs24HoursChange("Monday")(e)}
-                    checked={data[0]?.Monday?.open24Hours}
+                    checked={
+                      data && data.length > 0
+                        ? data.find((item) => item.Monday)?.Monday?.open24Hours
+                        : false
+                    }
                   />
                 }
                 label="Open 24 hours"
@@ -305,7 +323,16 @@ const OpeningHours = () => {
             <FormGroup>
               <FormControlLabel
                 control={
-                  <Checkbox onChange={(e) => checkboxOnchange(e, "Tuesday")} />
+                  <Checkbox
+                    onChange={(e) => checkboxOnchange(e, "Tuesday")}
+                    checked={
+                      data && data.length > 0
+                        ? data.find((item) => item.Tuesday)
+                          ? true
+                          : false
+                        : false
+                    }
+                  />
                 }
                 label="Tuesday"
               />
@@ -314,6 +341,14 @@ const OpeningHours = () => {
               <DemoContainer components={["TimePicker"]}>
                 <TimePicker
                   onChange={(e) => timeOnchange("Tuesday", "openHour")(e)}
+                  value={
+                    data && data.length > 0
+                      ? dayjs(
+                          data.find((item) => item.Tuesday)?.Tuesday
+                            ?.openHour || null
+                        )
+                      : null
+                  }
                   size="small"
                   label="From"
                 />
@@ -323,6 +358,14 @@ const OpeningHours = () => {
               <DemoContainer components={["TimePicker"]}>
                 <TimePicker
                   onChange={(e) => timeOnchange("Tuesday", "closeHour")(e)}
+                  value={
+                    data && data.length > 0
+                      ? dayjs(
+                          data.find((item) => item.Tuesday)?.Tuesday
+                            ?.closeHour || null
+                        )
+                      : null
+                  }
                   size="small"
                   label="To"
                 />
@@ -331,7 +374,17 @@ const OpeningHours = () => {
             <FormGroup>
               <FormControlLabel
                 control={
-                  <Checkbox onChange={(e) => onIs24HoursChange("Tuesday")(e)} />
+                  <Checkbox
+                    onChange={(e) => onIs24HoursChange("Tuesday")(e)}
+                    checked={
+                      data && data.length > 0
+                        ? data.find((item) => item.Tuesday)?.Tuesday
+                            ?.open24Hours
+                          ? true
+                          : false
+                        : false
+                    }
+                  />
                 }
                 label="Open 24 hours"
               />
@@ -353,6 +406,13 @@ const OpeningHours = () => {
                 control={
                   <Checkbox
                     onChange={(e) => checkboxOnchange(e, "Wednesday")}
+                    checked={
+                      data && data.length > 0
+                        ? data.find((item) => item.Wednesday)?.Wednesday
+                          ? true
+                          : false
+                        : false
+                    }
                   />
                 }
                 label="Wednesday"

@@ -17,7 +17,7 @@ const Duration = () => {
       setExperienceId(_id);
       (async function () {
         const response = await fetch(
-          `http://127.0.0.1:3232/experience/${_id}`,
+          `http://127.0.0.1:3232/experience/${experienceId}`,
           {
             method: "GET",
             headers: {
@@ -27,6 +27,9 @@ const Duration = () => {
         );
         const responseJson = await response.json();
         const { duration } = responseJson;
+        if (!duration) {
+          return;
+        }
         const durationInString = duration.split(":");
         console.log(durationInString, "durationInString");
         setDuration({

@@ -33,7 +33,8 @@ const PricingCategories = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { _id } = location.state ? location.state : {};
-  const [experienceId, setExperienceId] = useState("");
+  const localID = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localID ? localID : "");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -69,13 +70,25 @@ const PricingCategories = () => {
     max_age: null,
   });
   useEffect(() => {
-    const localID = localStorage.getItem("_id");
-    if (_id && _id.length > 0) {
-      setExperienceId(_id);
-      return;
-    }
-    if (localID && localID.length > 0) {
-      setExperienceId(localID);
+    if (experienceId && experienceId?.length > 0) {
+      (async function () {
+        const response = await fetch(
+          "http://127.0.0.1:3232/experience/" + experienceId,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const responseJson = await response.json();
+        const { pricing } = responseJson;
+        if (!pricing && pricing?.length === 0) {
+          return;
+        }
+        console.log(pricing, "pricing");
+        setRows(pricing);
+      })();
       return;
     }
     if (!_id && !localID) {
@@ -167,7 +180,6 @@ const PricingCategories = () => {
                   size="small"
                   value={formData?.categories?.label || ""}
                   onChange={(event, newValue) => {
-                    console.log(newValue);
                     setFormData({
                       ...formData,
                       categories: newValue,
@@ -190,6 +202,7 @@ const PricingCategories = () => {
                       occupancy: e.target.value,
                     });
                   }}
+                  value={formData?.occupancy}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -293,6 +306,7 @@ const PricingCategories = () => {
           <h2 style={{ fontWeight: "bold", padding: "5px" }}>
             Establish your pricing categories
           </h2>
+          ``
           <p style={{ padding: "5px", textAlign: "center" }}>
             You can define different types of travellers, such as adults,
             children, and groups. This will allow you to charge different prices
@@ -328,7 +342,7 @@ const PricingCategories = () => {
                 marginTop: "10px",
               }}
             >
-              {rows.map((row, index) => (
+              {rows?.map((row, index) => (
                 <div
                   style={{
                     display: "flex",
@@ -353,7 +367,7 @@ const PricingCategories = () => {
                     value={row?.price || ""}
                     onChange={(e) => {
                       setRows(
-                        rows.map((r) =>
+                        rows?.map((r) =>
                           r === row ? { ...r, price: e.target.value } : r
                         )
                       );
@@ -414,6 +428,7 @@ const PricingCategories = () => {
                   label="Price"
                   variant="outlined"
                   size="small"
+                  value={travelling_facility?.pick_up_and_drop || ""}
                   onChange={(e) => {
                     setTravelling_facility({
                       ...travelling_facility,
@@ -438,6 +453,7 @@ const PricingCategories = () => {
                   label="Price"
                   variant="outlined"
                   size="small"
+                  value={travelling_facility?.pick_up_only || ""}
                   onChange={(e) => {
                     setTravelling_facility({
                       ...travelling_facility,
@@ -461,6 +477,7 @@ const PricingCategories = () => {
                   label="Price"
                   variant="outlined"
                   size="small"
+                  value={travelling_facility?.drop_only || ""}
                   onChange={(e) => {
                     setTravelling_facility({
                       ...travelling_facility,

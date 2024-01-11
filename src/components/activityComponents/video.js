@@ -42,13 +42,16 @@ const Videos = () => {
     const data = {
       video_link: videoLinks,
     };
-    const response = await fetch(`http://127.0.0.1:3232/experience/${_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      `http://127.0.0.1:3232/experience/${experienceId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
     const responseJson = await response.json();
     if (!response.ok) {
       alert(responseJson.error);

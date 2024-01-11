@@ -56,6 +56,9 @@ const Description = () => {
         const responseJson = await response.json();
         console.log(responseJson, "responseJson");
         const { description } = responseJson;
+        if (!description) {
+          return;
+        }
         setDescription(description.detail_dec);
         setShortDescription(description.short_des);
       })();
