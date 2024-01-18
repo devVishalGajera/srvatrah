@@ -44,7 +44,8 @@ const style = {
 
 const StartTime = () => {
   const navigate = useNavigate();
-  const [experienceId, setExperienceId] = useState("");
+  const localID = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localID ? localID : null);
   const location = useLocation();
   const { _id } = location.state ? location.state : {};
   const [open, setOpen] = React.useState(false);
@@ -60,30 +61,33 @@ const StartTime = () => {
   const [totalData, setTotalData] = useState(1);
   const [editingId, setEditingId] = useState(-1);
   //"2825752", "12:00 PM", "1 hour", "Standard rate", "Edit/Delete"
-  const [rows, setRows] = useState([
-    {
-      id: "2825752",
-      time: "12:00 PM",
-      duration: "1 hour",
-      linkedRates: "Standard rate",
-      buttons: "Edit/Delete",
-    },
-  ]);
+  const [rows, setRows] = useState([]);
   useEffect(() => {
-    const localID = localStorage.getItem("_id");
-    if (_id && _id.length > 0) {
-      setExperienceId(_id);
+    if (experienceId && experienceId.length > 0) {
+      (async () => {
+        const response = await fetch(
+          "http://127.0.0.1:3232/experience/" + experienceId,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const { start_time } = await response.json();
+        if (start_time && start_time.length > 0) {
+          const modifiedRows = start_time.map((row) => ({
+            ...row,
+            time: row.start_time,
+          }));
+          setRows(modifiedRows);
+          setTotalData(start_time.length);
+        }
+      })();
       return;
     }
-    if (localID && localID.length > 0) {
-      setExperienceId(localID);
-      return;
-    }
-    if (!_id && !localID) {
-      navigate("/title");
-      return;
-    }
-    navigate("/");
+
+    //navigate("/");
   }, []);
   const createStartTime = async () => {
     if (editingId !== -1) {
@@ -133,9 +137,9 @@ const StartTime = () => {
   };
   const handleEdit = (id) => {
     setFormData({
-      time: rows[id].time,
-      duration: rows[id].duration,
-      linkedRates: rows[id].linkedRates,
+      time: rows[id]?.time,
+      duration: rows[id]?.duration,
+      linkedRates: rows[id]?.linkedRates,
     });
     handleOpen();
   };
