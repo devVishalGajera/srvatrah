@@ -115,7 +115,9 @@ const Calendar = () => {
   const [weekendsVisible, setWeekendsVisible] = useState(true);
   const [currentEvents, setCurrentEvents] = useState([]);
   const [open, setOpen] = React.useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(
+    "happen on a selected date"
+  );
   const [participant, setParticipant] = useState({
     minimum: 1,
     maximum: 100,
@@ -131,10 +133,20 @@ const Calendar = () => {
   const navigate = useNavigate();
   const handleOpen = () => setOpen(true);
   const [currentSelectedStartTime, setCurrentStartTime] = useState([]);
+  const [currentSelectedInfo, setCurrentSelectInfo] = useState({});
 
   const handleClose = () => {
     setOpen(false);
-    setSelectedCategory(null);
+    setSelectedCategory("happen on a selected date");
+    let selectedInfo = currentSelectedInfo;
+    let calendarApi = selectedInfo.view.calendar;
+    calendarApi.unselect();
+    calendarApi.addEvent({
+      id: createEventId(),
+      start: selectedInfo.startStr,
+      end: selectedInfo.endStr,
+      allDay: selectedInfo.allDay,
+    });
   };
 
   useEffect(() => {
@@ -178,6 +190,8 @@ const Calendar = () => {
   };
 
   const handleDateSelect = (selectInfo) => {
+    handleOpen();
+    setCurrentSelectInfo(selectInfo);
     let title = prompt("Please enter a new title for your event");
     let calendarApi = selectInfo.view.calendar;
     console.log(selectInfo, "selectInfo");
@@ -802,6 +816,7 @@ const Calendar = () => {
                         id="combo-box-demo"
                         options={categories}
                         onChange={handleCategoryChange}
+                        value={selectedCategory}
                         size="small"
                         renderInput={(params) => <TextField {...params} />}
                       />

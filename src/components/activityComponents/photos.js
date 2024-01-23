@@ -36,11 +36,13 @@ const Photos = () => {
   }, []);
   const submit = async () => {
     const data = {
-      img_link: {
-        filename: photos.filename,
-        path: photos,
-        mimetype: photos.mimetype,
-      },
+      img_link: [
+        {
+          filename: photos.filename,
+          path: photos,
+          mimetype: photos.mimetype,
+        },
+      ],
     };
     const response = await fetch(
       `http://127.0.0.1:3232/experience/${experienceId}`,
@@ -67,6 +69,9 @@ const Photos = () => {
   const handleImageChange = (e) => {
     let reader = new FileReader();
     reader.readAsDataURL(e.target.files[0]);
+    const reducedPhotoProcess = new Blob([e.target.files[0]], {
+      type: e.target.files[0].type,
+    });
     reader.onload = () => {
       setPhotos(reader.result);
     };
