@@ -25,6 +25,7 @@ import { Formik, Form, Field, FieldArray } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import rrulePlugin from "@fullcalendar/rrule";
 
 const style = {
   marginTop: "10px",
@@ -154,7 +155,10 @@ const Calendar = () => {
     console.log(todayStr);
     const events = generateEventBasedOnWeekDays([5, 6, 7], todayStr, 52);
     console.log(events, "events");
-    setCurrentEvents(events);
+    const rec = createRecurringEvent({
+      title: "my recurring event",
+    });
+    setCurrentEvents([...events, rec]);
     const dummy_event_with_timeing = {
       id: createEventId(),
       title: "Event",
@@ -232,6 +236,21 @@ const Calendar = () => {
     margin: "auto",
   };
   const handleEventAdd = (event) => {};
+  const createRecurringEvent = (event) => {
+    console.log(event, "event");
+    const eventRecurrsive = {
+      title: event.title,
+      rrule: {
+        freq: "weekly",
+        interval: 5,
+        byweekday: ["mo", "fr"],
+        dtstart: todayDate,
+        until: "2025-06-01",
+      },
+    };
+    console.log(eventRecurrsive, "eventRecurrsive");
+    return eventRecurrsive;
+  };
 
   const handleParticipantChange = (event, type) => {
     setParticipant((prev) => ({
@@ -496,8 +515,50 @@ const Calendar = () => {
               setSubmitting(false);
             }}
           >
-            {({ values }) => (
+            {({ values, setFieldValue }) => (
               <Form style={{ padding: "25px" }}>
+                <h6>Affected dates</h6>
+                <span
+                  style={{
+                    fontStyle: "italic",
+                  }}
+                >
+                  Select which dates this availability rule applies to.
+                </span>
+                <div
+                  style={{
+                    display: "flex",
+                  }}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={["DatePicker"]}>
+                      <DatePicker
+                        label="Start date"
+                        value={values.startDate}
+                        onChange={(newValue) => {
+                          setFieldValue("startDate", newValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField>{params.inputProps.value}</TextField>
+                        )}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={["DatePicker"]}>
+                      <DatePicker
+                        label="End date"
+                        value={values.endDate}
+                        onChange={(newValue) => {
+                          setFieldValue("endDate", newValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField>{params.inputProps.value}</TextField>
+                        )}
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </div>
                 <div>
                   <h6>Participants (PAX)</h6>
                   <span
@@ -531,6 +592,15 @@ const Calendar = () => {
                             InputLabelProps={{
                               shrink: true,
                             }}
+                            onChange={(e) => {
+                              if (e.target.value > values.participant.maximum) {
+                                setFieldValue(
+                                  "participant.maximum",
+                                  e.target.value
+                                );
+                              }
+                            }}
+                            value={values.participant.minimum}
                           />
                         )}
                       />
@@ -549,6 +619,15 @@ const Calendar = () => {
                             InputLabelProps={{
                               shrink: true,
                             }}
+                            onChange={(e) => {
+                              if (e.target.value < values.participant.minimum) {
+                                setFieldValue(
+                                  "participant.minimum",
+                                  e.target.value
+                                );
+                              }
+                            }}
+                            value={values.participant.maximum}
                           />
                         )}
                       />
@@ -765,7 +844,12 @@ const Calendar = () => {
           open
         </Button>
         <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          plugins={[
+            dayGridPlugin,
+            timeGridPlugin,
+            interactionPlugin,
+            rrulePlugin,
+          ]}
           headerToolbar={{
             left: "prev,next today",
             center: "title",
