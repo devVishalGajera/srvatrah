@@ -16,6 +16,10 @@ import {
   Switch,
   TextField,
   Typography,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -44,13 +48,34 @@ const style = {
   },
 };
 const daysArray = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
+  {
+    label: "Sunday",
+    value: "su",
+  },
+  {
+    label: "Monday",
+    value: "mo",
+  },
+  {
+    label: "Tuesday",
+    value: "tu",
+  },
+  {
+    label: "Wednesday",
+    value: "we",
+  },
+  {
+    label: "Thursday",
+    value: "th",
+  },
+  {
+    label: "Friday",
+    value: "fr",
+  },
+  {
+    label: "Saturday",
+    value: "sa",
+  },
 ];
 const buttonStyle = {
   width: "4%",
@@ -151,14 +176,12 @@ const Calendar = () => {
   };
 
   useEffect(() => {
-    const todayStr = new Date().toISOString().replace(/T.*$/, "");
     console.log(todayStr);
-    const events = generateEventBasedOnWeekDays([5, 6, 7], todayStr, 52);
-    console.log(events, "events");
-    const rec = createRecurringEvent({
-      title: "my recurring event",
-    });
-    setCurrentEvents([...events, rec]);
+    //const events = generateEventBasedOnWeekDays([5, 6, 7], todayStr, 52);
+    // const rec = createRecurringEvent({
+    //   title: "my recurring event",
+    // });
+    // setCurrentEvents([rec]);
     const dummy_event_with_timeing = {
       id: createEventId(),
       title: "Event",
@@ -236,21 +259,6 @@ const Calendar = () => {
     margin: "auto",
   };
   const handleEventAdd = (event) => {};
-  const createRecurringEvent = (event) => {
-    console.log(event, "event");
-    const eventRecurrsive = {
-      title: event.title,
-      rrule: {
-        freq: "weekly",
-        interval: 5,
-        byweekday: ["mo", "fr"],
-        dtstart: todayDate,
-        until: "2025-06-01",
-      },
-    };
-    console.log(eventRecurrsive, "eventRecurrsive");
-    return eventRecurrsive;
-  };
 
   const handleParticipantChange = (event, type) => {
     setParticipant((prev) => ({
@@ -258,20 +266,110 @@ const Calendar = () => {
       [type]: event.target.value,
     }));
   };
-  const subMitingData = (formVal, type = RecurringTypes.WEEKLY) => {
+  const handleBackendEventAdd = async (event) => {
+    const data = {
+      event: event,
+    };
+    const result = await fetch(
+      "http://localhost:3232/experience/" + experienceId,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const response = await result.json();
+    console.log(response, "response");
+  };
+  const subMitingData = async (formVal, type = RecurringTypes.WEEKLY) => {
+    let startStr = startTime.find((time) => {
+      if (time && formVal.start_time.includes(time._id)) {
+        return true;
+      }
+    });
+    let startHoursArr = [];
+    let startMinutesArr = [];
+    for (let i = 0; i < startTime?.length; i++) {
+      if (startTime[i] && formVal.start_time.includes(startTime[i]._id)) {
+        const [startHours, startMinutes] = startTime[i].start_time.split(":");
+        startHoursArr.push(startHours);
+        startMinutesArr.push(startMinutes);
+      }
+    }
+    startStr = startStr ? startStr.start_time : "";
+    const todayStrWithTime = `${todayStr}T${startStr}`;
     switch (type) {
       case RecurringTypes.WEEKLY:
-        const eventEntryForBackend = {
-          recurring: RecurringTypes.WEEKLY,
-          start_time: formVal.start_time,
-          startDate: formVal.startDate,
-          endDate: formVal.endDate,
-          recurringDetails: {
-            daysOfWeek: formVal.days,
-            startDate: formVal.startDate,
+        const days = [];
+        formVal.days.forEach((day) => {
+          if (day && day.length > 0) {
+            days.push(day.join(""));
+          }
+        });
+        const backendEvent = {
+          title: "my recurring event",
+          rrule: {
+            freq: "weekly",
+            interval: 1,
+            byweekday: days,
+            dtstart: todayStrWithTime,
+            until: formVal.endDate ? formVal.endDate : "2025-06-01",
+            byhour: startHoursArr.map((hour) => parseInt(hour)),
           },
+          start_time: formVal.start_time,
+          participant: formVal.participant,
         };
-        console.log(eventEntryForBackend, "eventEntryForBackend");
+        handleBackendEventAdd(backendEvent);
+        setCurrentEvents([backendEvent]);
+        return backendEvent;
+      case RecurringTypes.MONTHLY:
+        console.log(formVal, "formVal");
+        const monthlyEvent = {
+          title: "my recurring event",
+          rrule: {
+            freq: "monthly",
+            interval: 1,
+            bymonthday: formVal.days,
+            dtstart: todayStrWithTime,
+            until: formVal.endDate ? formVal.endDate : "2025-06-01",
+            byhour: startHoursArr.map((hour) => parseInt(hour)),
+          },
+          start_time: formVal.start_time,
+          participant: formVal.participant,
+        };
+        handleBackendEventAdd(monthlyEvent);
+        console.log(monthlyEvent, "backendEvent");
+        setCurrentEvents([monthlyEvent]);
+        return;
+      case RecurringTypes.SPECIFIC_DATE:
+        console.log(formVal, "formVal");
+        const specificEvent = {
+          title: startTime.find((time) => time._id === formVal.start_time),
+          rrule: {
+            freq: "daily",
+            interval: 1,
+            dtstart: todayStrWithTime,
+            until: todayStr,
+            byhour: startHoursArr.map((hour) => parseInt(hour)),
+          },
+          start_time: formVal.start_time,
+          participant: formVal.participant,
+        };
+
+        console.log(specificEvent, "backendEvent");
+        setCurrentEvents([specificEvent]);
+        return;
+      case RecurringTypes.BETWEEN_TWO_DATES:
+        console.log(formVal, "formVal");
+        const betweenEvent = {
+          title: startTime.find((time) => time._id === formVal.start_time),
+          start: formVal.startDate,
+          end: formVal.endDate,
+          start_time: formVal.start_time,
+          participant: formVal.participant,
+        };
     }
   };
 
@@ -291,6 +389,7 @@ const Calendar = () => {
                 .required("Days are required"),
             })}
             onSubmit={(values, { setSubmitting }) => {
+              console.log(values, "values");
               subMitingData(values);
               setSubmitting(false);
             }}
@@ -316,9 +415,9 @@ const Calendar = () => {
                             <Field
                               type="checkbox"
                               name={`days.${index}`}
-                              value={day}
+                              value={day.value}
                             />
-                            {day}
+                            {day.label}
                           </div>
                         ))}
                       </>
@@ -349,7 +448,7 @@ const Calendar = () => {
                           size="small"
                           id="outlined-number"
                           type="number"
-                          value={values.participant.minimum}
+                          value={values.participant?.minimum || 0}
                           onChange={(e) =>
                             setFieldValue("participant.minimum", e.target.value)
                           }
@@ -364,7 +463,7 @@ const Calendar = () => {
                           size="small"
                           id="outlined-number"
                           type="number"
-                          value={values.participant.maximum}
+                          value={values.participant?.maximum}
                           onChange={(e) =>
                             setFieldValue("participant.maximum", e.target.value)
                           }
@@ -374,6 +473,31 @@ const Calendar = () => {
                         />
                       </div>
                       <div>maximum</div>
+                    </div>
+                    {/*display start Time checkBox*/}
+                    <div>
+                      <h6>Select all start times</h6>
+                      <FieldArray name="start_time">
+                        {({ form, push, remove }) => (
+                          <>
+                            {startTime.map((time, index) => (
+                              <div key={index}>
+                                <Field
+                                  type="checkbox"
+                                  name={`start_time.${index}`}
+                                  onChange={(e) => {
+                                    console.log(time);
+                                    e.target.checked
+                                      ? push(time._id)
+                                      : remove(time._id);
+                                  }}
+                                />
+                                {time.start_time}
+                              </div>
+                            ))}
+                          </>
+                        )}
+                      </FieldArray>
                     </div>
                   </div>
                   <button type="submit">Submit</button>
@@ -412,7 +536,23 @@ const Calendar = () => {
                 >
                   Select which month(s) this availability rule applies to.
                 </span>
-                <FieldArray name="months">
+                <FormControl fullWidth>
+                  <InputLabel htmlFor="months">Affected Months</InputLabel>
+                  <Select
+                    multiple
+                    name="months"
+                    value={values.months}
+                    onChange={(e) => setFieldValue("months", e.target.value)}
+                    label="Affected Months"
+                  >
+                    {monthArray.map((month, index) => (
+                      <MenuItem key={index} value={month}>
+                        {month}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {/* <FieldArray name="months">
                   {({ form, push, remove }) => (
                     <>
                       {monthArray.map((month, index) => (
@@ -433,6 +573,23 @@ const Calendar = () => {
                             }}
                           />
                           {month}
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </FieldArray> */}
+                <h6>Affected days</h6>
+                <FieldArray name="days">
+                  {({ form, push, remove }) => (
+                    <>
+                      {daysArray.map((day, index) => (
+                        <div key={index}>
+                          <Field
+                            type="checkbox"
+                            name={`days.${index}`}
+                            value={day.value}
+                          />
+                          {day.label}
                         </div>
                       ))}
                     </>
@@ -463,7 +620,7 @@ const Calendar = () => {
                         size="small"
                         id="outlined-number"
                         type="number"
-                        value={values.participant.minimum}
+                        value={values.participant?.minimum}
                         onChange={(e) =>
                           setFieldValue("participant.minimum", e.target.value)
                         }
@@ -478,7 +635,7 @@ const Calendar = () => {
                         size="small"
                         id="outlined-number"
                         type="number"
-                        value={values.participant.maximum}
+                        value={values.participant?.maximum}
                         onChange={(e) =>
                           setFieldValue("participant.maximum", e.target.value)
                         }
@@ -489,6 +646,24 @@ const Calendar = () => {
                     </div>
                     <div>maximum</div>
                   </div>
+                </div>
+                <div>
+                  <h6>Select all start times</h6>
+                  <FieldArray name="start_time">
+                    {({ form, push, remove }) => (
+                      <>
+                        {startTime.map((time, index) => (
+                          <div key={index}>
+                            <Field
+                              type="checkbox"
+                              name={`start_time.${index}`}
+                            />
+                            {time.start_time}
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </FieldArray>
                 </div>
                 <button type="submit">Submit</button>
               </Form>
@@ -703,6 +878,84 @@ const Calendar = () => {
                     marginTop: "40px",
                   }}
                 >
+                  <div>
+                    <h6>Participants (PAX)</h6>
+                    <span
+                      style={{
+                        fontStyle: "italic",
+                        paddingBottom: "5px",
+                        fontSize: "15px",
+                      }}
+                    >
+                      The experience will only be bookable if minimum
+                      participants is met.
+                    </span>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "15px",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      <div style={{ width: "20%" }}>
+                        <TextField
+                          size="small"
+                          id="outlined-number"
+                          type="number"
+                          value={values.participant?.minimum || 0}
+                          onChange={(e) =>
+                            setFieldValue("participant.minimum", e.target.value)
+                          }
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                        />
+                      </div>
+                      <div>minimum</div>
+                      <div style={{ width: "20%" }}>
+                        <TextField
+                          size="small"
+                          id="outlined-number"
+                          type="number"
+                          value={values.participant?.maximum}
+                          onChange={(e) =>
+                            setFieldValue("participant.maximum", e.target.value)
+                          }
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                        />
+                      </div>
+                      <div>maximum</div>
+                    </div>
+                    {/*display start Time checkBox*/}
+                    <div>
+                      <h6>Select all start times</h6>
+                      <FieldArray name="start_time">
+                        {({ form, push, remove }) => (
+                          <>
+                            {startTime.map((time, index) => (
+                              <div key={index}>
+                                <Field
+                                  type="checkbox"
+                                  name={`start_time.${index}`}
+                                  onChange={(e) => {
+                                    e.target.checked
+                                      ? push(time._id)
+                                      : remove(time._id);
+                                  }}
+                                />
+                                {time.start_time}
+                              </div>
+                            ))}
+                          </>
+                        )}
+                      </FieldArray>
+                    </div>
+                  </div>
+                  <button type="submit">Submit</button>
+
                   <Button onClick={handleClose} variant="outlined">
                     Back
                   </Button>
