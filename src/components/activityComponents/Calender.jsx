@@ -176,17 +176,40 @@ const Calendar = () => {
   };
 
   useEffect(() => {
-    console.log(todayStr);
-    //const events = generateEventBasedOnWeekDays([5, 6, 7], todayStr, 52);
-    // const rec = createRecurringEvent({
-    //   title: "my recurring event",
-    // });
-    // setCurrentEvents([rec]);
-    const dummy_event_with_timeing = {
-      id: createEventId(),
-      title: "Event",
-    };
-    console.log(currentEvents, "currentEvents");
+    if (!experienceId && experienceId.length === 0) {
+      alert("please add titel and categories");
+      navigate("/titel");
+      return;
+    }
+    (async function () {
+      const response = await fetch(
+        "http://localhost:3232/experience/" + experienceId,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const responseJson = await response.json();
+      const { calender_events } = responseJson;
+      if (calender_events && calender_events.length > 0) {
+        /**
+         * [
+            {
+              evnet:calenderevent
+            },
+            {
+              evnet:calenderevent
+            }
+         * ]
+            to [calenderevent,calenderevent]
+         */
+        const events = calender_events.map((item) => item.event);
+        setCurrentEvents(events);
+      }
+    })();
+
     getStartTIme();
   }, []);
   const getStartTIme = async () => {

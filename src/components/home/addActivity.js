@@ -87,11 +87,11 @@ const AddActivity = () => {
               <Link to={"/bookingCutoff"}>
                 <Typography className="menuItem">Booking cutoff</Typography>
               </Link>
-              <Link to={"/bookingOpeningDate"}>
+              {/* <Link to={"/bookingOpeningDate"}>
                 <Typography className="menuItem">
                   Booking Opening date
                 </Typography>
-              </Link>
+              </Link> */}
               <Link to={"/capacity"}>
                 <Typography className="menuItem">Capacity</Typography>
               </Link>

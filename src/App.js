@@ -153,14 +153,14 @@ function App() {
                 </ActivityLayout>
               }
             />
-            <Route
+            {/* <Route
               path="/bookingOpeningDate"
               element={
                 <ActivityLayout>
                   <BookingOpeningDate />
                 </ActivityLayout>
               }
-            />
+            /> */}
             <Route
               path="/capacity"
               element={

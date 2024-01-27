@@ -18,25 +18,46 @@ const BookingCutoff = () => {
   const [selectedOption, setSelectedOption] = useState(bookingCutoff[0]);
   const [showTimeSection, setShowTimeSection] = useState(false);
   const [timingOptions, setTimingOptions] = useState("date");
-  const [dateTime, setDateTime] = useState();
+  const [dateTime, setDateTime] = useState("");
   const [date, setDate] = useState();
-  const [_id, setId] = useState();
+  const localId = localStorage.getItem("_id");
+  const [experienceId, setExperienceId] = useState(localId ? localId : "");
 
   useEffect(() => {
-    const localId = localStorage.getItem("_id");
-    if (_id && _id.length > 0) {
-      setId(_id);
-      return;
-    }
-    if (localId && localId.length > 0) {
-      setId(localId);
-      return;
-    }
-    if (!_id && _id.length === 0) {
+    if (!experienceId && experienceId.length === 0) {
       alert("please add titel and categories");
       navigate("/titel");
       return;
     }
+    (async function () {
+      const response = await fetch(
+        "http://127.0.0.1:3232/experience/" + experienceId,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const responseJson = await response.json();
+      const { predefinedTimeAllowances, allow_custom_availability } =
+        responseJson;
+      if (predefinedTimeAllowances) {
+        setSelectedOption(
+          bookingCutoff.find((item) => item.value === predefinedTimeAllowances)
+        );
+        setShowTimeSection(predefinedTimeAllowances === "date");
+      }
+      if (allow_custom_availability) {
+        setTimingOptions(allow_custom_availability.typeOf);
+      }
+      if (
+        responseJson.customTimeAllowance &&
+        responseJson.customTimeAllowance.value
+      ) {
+        setDateTime(responseJson.customTimeAllowance.value);
+      }
+    })();
   }, []);
   const handleRadioChange = (event) => {
     console.log(event.target.value);
@@ -45,18 +66,18 @@ const BookingCutoff = () => {
   };
 
   const submit = async () => {
-    if (showTimeSection) {
+    if (showTimeSection && selectedOption.value === "custom") {
       const value = timingOptions === "date" ? date : dateTime;
       const data = {
         predefinedTimeAllowances: selectedOption.value,
         allow_custom_availability: true,
         customTimeAllowance: {
-          type: timingOptions,
+          typeOf: timingOptions,
           value: value,
         },
       };
       const response = await fetch(
-        "http://127.0.0.1:3232/experience/" + "65980533dd32539ceb6b721e",
+        "http://127.0.0.1:3232/experience/" + experienceId,
         {
           method: "PUT",
           headers: {
@@ -66,7 +87,7 @@ const BookingCutoff = () => {
         }
       );
       const result = await response.json();
-      navigate("/bookingOpeningDate", {
+      navigate("/capacity", {
         state: {
           ...result,
         },
@@ -78,7 +99,7 @@ const BookingCutoff = () => {
       };
       console.log(data);
       const response = await fetch(
-        "http://127.0.0.1:3232/experience/" + "65980533dd32539ceb6b721e",
+        "http://127.0.0.1:3232/experience/" + experienceId,
         {
           method: "PUT",
           headers: {
@@ -89,6 +110,11 @@ const BookingCutoff = () => {
       );
       const result = await response.json();
       console.log(result);
+      navigate("/capacity", {
+        state: {
+          ...result,
+        },
+      });
     }
     //customTimeAllowance
   };
@@ -141,6 +167,9 @@ const BookingCutoff = () => {
             onChange={(event, newValue) => {
               console.log(newValue);
               setSelectedOption(newValue);
+              if (newValue?.value === "custom") {
+                setShowTimeSection(true);
+              }
             }}
             renderInput={(params) => <TextField {...params} />}
           />
