@@ -280,6 +280,26 @@ const Calendar = () => {
     margin: "auto",
   };
   const handleEventAdd = (event) => {};
+  const handleOnFormSubmit = async () => {
+    const data = currentEvents;
+    const result = await fetch(
+      "http://localhost:3232/experience/" + experienceId,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const response = await result.json();
+    console.log(response, "response");
+    navigate("/timeDatePass", {
+      state: {
+        ...response,
+      },
+    });
+  };
 
   const handleParticipantChange = (event, type) => {
     setParticipant((prev) => ({
@@ -1160,6 +1180,7 @@ const Calendar = () => {
             </div>
           </div>
         </Modal>
+        <Button onClick={handleOnFormSubmit}>Countinue </Button>
       </div>
     </div>
   );
