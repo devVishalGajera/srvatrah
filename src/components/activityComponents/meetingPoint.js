@@ -164,6 +164,7 @@ const MeetingPoint = () => {
       }
     );
     const result = await response.json();
+    localStorage.removeItem("_id");
     console.log(result);
   };
   const handleDelete = (index) => {

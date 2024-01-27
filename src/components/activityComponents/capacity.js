@@ -60,7 +60,7 @@ const Capacity = () => {
         body: JSON.stringify(data),
       }
     );
-    navigate("/calendar", {
+    navigate("/startTime", {
       state: {
         ...data,
       },

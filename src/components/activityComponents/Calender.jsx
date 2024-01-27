@@ -294,7 +294,7 @@ const Calendar = () => {
     );
     const response = await result.json();
     console.log(response, "response");
-    navigate("/timeDatePass", {
+    navigate("/pricingCategories", {
       state: {
         ...response,
       },

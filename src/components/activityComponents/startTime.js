@@ -194,7 +194,7 @@ const StartTime = () => {
       }
     );
     const data2 = await response.json();
-    navigate("/pricingCategories", {
+    navigate("/calendar", {
       state: {
         ...data2,
       },
