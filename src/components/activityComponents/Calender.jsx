@@ -98,6 +98,7 @@ const RecurringTypes = {
 
 let eventGuid = 0;
 let todayStr = new Date().toISOString().replace(/T.*$/, "");
+let nextDayStr = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
 
 const generateEventBasedOnWeekDays = (weekDays, startDate, numberOfWeeks) => {
   const events = [];
@@ -165,15 +166,6 @@ const Calendar = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedCategory("happen on a selected date");
-    let selectedInfo = currentSelectedInfo;
-    let calendarApi = selectedInfo.view.calendar;
-    calendarApi.unselect();
-    calendarApi.addEvent({
-      id: createEventId(),
-      start: selectedInfo.startStr,
-      end: selectedInfo.endStr,
-      allDay: selectedInfo.allDay,
-    });
   };
 
   useEffect(() => {
@@ -195,22 +187,10 @@ const Calendar = () => {
       const responseJson = await response.json();
       const { calender_events } = responseJson;
       if (calender_events && calender_events.length > 0) {
-        /**
-         * [
-            {
-              evnet:calenderevent
-            },
-            {
-              evnet:calenderevent
-            }
-         * ]
-            to [calenderevent,calenderevent]
-         */
         const events = calender_events.map((item) => item.event);
         setCurrentEvents(events);
       }
     })();
-
     getStartTIme();
   }, []);
   const getStartTIme = async () => {
@@ -230,7 +210,8 @@ const Calendar = () => {
       setCurrentStartTime(start_time[0]);
       return;
     }
-    alert("Start time not found");
+    alert("Start time not found please add start time");
+    navigate("/startTime");
   };
   const handleCategoryChange = (event, newValue) => {
     setSelectedCategory(newValue);
@@ -242,7 +223,7 @@ const Calendar = () => {
 
   const handleDateSelect = (selectInfo) => {
     handleOpen();
-    setCurrentSelectInfo(selectInfo);
+    // setCurrentSelectInfo(selectInfo);
     // // let title = prompt("Please enter a new title for your event");
     // let calendarApi = selectInfo.view.calendar;
     // calendarApi.unselect();
@@ -325,6 +306,7 @@ const Calendar = () => {
     console.log(response, "response");
   };
   const subMitingData = async (formVal, type = RecurringTypes.WEEKLY) => {
+    console.log(formVal, "formVal");
     let startStr = startTime.find((time) => {
       if (time && formVal.start_time.includes(time._id)) {
         return true;
@@ -382,7 +364,7 @@ const Calendar = () => {
         };
         handleBackendEventAdd(monthlyEvent);
         console.log(monthlyEvent, "backendEvent");
-        setCurrentEvents([monthlyEvent]);
+        setCurrentEvents((prev) => [...prev, monthlyEvent]);
         return;
       case RecurringTypes.SPECIFIC_DATE:
         console.log(formVal, "formVal00000000000");
@@ -392,8 +374,8 @@ const Calendar = () => {
             freq: "daily",
             interval: 1,
             dtstart: todayStrWithTime,
-            until: todayStr,
             byhour: startHoursArr.map((hour) => parseInt(hour)),
+            count: startHoursArr.length,
           },
           start_time: formVal.start_time,
           participant: formVal.participant,
@@ -406,11 +388,17 @@ const Calendar = () => {
         console.log(formVal, "formVal");
         const betweenEvent = {
           title: startTime.find((time) => time._id === formVal.start_time),
-          start: formVal.startDate,
-          end: formVal.endDate,
+          rrule: {
+            freq: "daily",
+            interval: 1,
+            dtstart: todayStrWithTime,
+            until: formVal.endDate,
+            byhour: startHoursArr.map((hour) => parseInt(hour)),
+          },
           start_time: formVal.start_time,
           participant: formVal.participant,
         };
+        console.log(betweenEvent, "backendEvent");
     }
   };
 
@@ -430,7 +418,10 @@ const Calendar = () => {
                 .required("Days are required"),
             })}
             onSubmit={(values, { setSubmitting }) => {
-              console.log(values, "values");
+              // console.log(values, "values");
+              if (!values.start_time) {
+                values.start_time = startTime[0]._id;
+              }
               subMitingData(values);
               setSubmitting(false);
             }}
@@ -532,6 +523,7 @@ const Calendar = () => {
                                       ? push(time._id)
                                       : remove(time._id);
                                   }}
+                                  checked={index === 0}
                                 />
                                 {time.start_time}
                               </div>
@@ -562,6 +554,10 @@ const Calendar = () => {
             })}
             onSubmit={(values, { setSubmitting }) => {
               console.log(values);
+              if (!values.start_time) {
+                values.start_time = startTime[0]._id;
+              }
+              subMitingData(values, RecurringTypes.MONTHLY_SELECTED_DAYS);
               setSubmitting(false);
             }}
           >
@@ -582,7 +578,7 @@ const Calendar = () => {
                   <Select
                     multiple
                     name="months"
-                    value={values.months}
+                    value={values.months || []}
                     onChange={(e) => setFieldValue("months", e.target.value)}
                     label="Affected Months"
                   >
@@ -593,32 +589,6 @@ const Calendar = () => {
                     ))}
                   </Select>
                 </FormControl>
-                {/* <FieldArray name="months">
-                  {({ form, push, remove }) => (
-                    <>
-                      {monthArray.map((month, index) => (
-                        <div key={index}>
-                          <Field
-                            type="checkbox"
-                            name={`months.${index}`}
-                            value={month}
-                            checked={values?.months?.includes(month)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                push(month);
-                              } else {
-                                const monthIndex =
-                                  values?.months?.indexOf(month);
-                                remove(monthIndex);
-                              }
-                            }}
-                          />
-                          {month}
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </FieldArray> */}
                 <h6>Affected days</h6>
                 <FieldArray name="days">
                   {({ form, push, remove }) => (
@@ -698,6 +668,13 @@ const Calendar = () => {
                             <Field
                               type="checkbox"
                               name={`start_time.${index}`}
+                              onChange={(e) => {
+                                console.log(time);
+                                e.target.checked
+                                  ? push(time._id)
+                                  : remove(time._id);
+                              }}
+                              checked={index === 0}
                             />
                             {time.start_time}
                           </div>
@@ -728,6 +705,13 @@ const Calendar = () => {
             })}
             onSubmit={(values, { setSubmitting }) => {
               console.log(values);
+              if (!values.start_time) {
+                values.start_time = startTime[0]._id;
+              }
+              subMitingData(
+                values,
+                RecurringTypes.happen_beetween_selected_dates
+              );
               setSubmitting(false);
             }}
           >
@@ -865,8 +849,11 @@ const Calendar = () => {
               selectedDate: Yup.date().required("Date is required"),
             })}
             onSubmit={(values, { setSubmitting }) => {
-              console.log(values);
               setSubmitting(false);
+              if (!values.start_time) {
+                values.start_time = startTime[0]._id;
+              }
+              subMitingData(values, RecurringTypes.SPECIFIC_DATE);
             }}
           >
             {({ values, setFieldValue }) => (
@@ -881,6 +868,7 @@ const Calendar = () => {
                 >
                   Select all start times
                 </span>
+
                 <div
                   style={{
                     display: "flex",
@@ -982,10 +970,12 @@ const Calendar = () => {
                                   type="checkbox"
                                   name={`start_time.${index}`}
                                   onChange={(e) => {
+                                    console.log(time);
                                     e.target.checked
                                       ? push(time._id)
                                       : remove(time._id);
                                   }}
+                                  checked={index === 0}
                                 />
                                 {time.start_time}
                               </div>
@@ -1003,6 +993,7 @@ const Calendar = () => {
                   <Button
                     variant="contained"
                     type="submit"
+
                     // onClick={onSubmit}
                     // onClick={() => {
                     //   createMeetingPoint();
@@ -1134,25 +1125,6 @@ const Calendar = () => {
                   </div>
                 </div>
               </div>
-              {/* <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "40px",
-                }}
-              >
-                <Button onClick={handleClose} variant="outlined">
-                  Back
-                </Button>
-                <Button
-                  variant="contained"
-                  // onClick={() => {
-                  //   createMeetingPoint();
-                  // }}
-                >
-                  Continue
-                </Button>
-              </div> */}
             </Box>
           </Modal>
         </div>

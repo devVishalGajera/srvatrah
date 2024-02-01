@@ -51,18 +51,11 @@ const PricingCategories = () => {
       price: 0,
     },
   });
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      categories: "child",
-      occupancy: "20",
-      min_age: null,
-      max_age: null,
-    },
-  ]);
+  const [rows, setRows] = useState();
+  const [temp_Id, setTemp_Id] = useState(1);
 
   const [formData, setFormData] = useState({
-    id: "",
+    _id: temp_Id,
     categories: "",
     occupancy: 0,
     isAgeRestricted: false,
@@ -99,7 +92,7 @@ const PricingCategories = () => {
   //travelling_facility
   const handleSwitchChange = () => {
     setFormData({
-      id: "",
+      _id: temp_Id,
       categories: categories[0],
       occupancy: 0,
       isAgeRestricted: !isSwitchOn,
@@ -110,8 +103,9 @@ const PricingCategories = () => {
   };
   const handleNext = () => {
     setRows([...rows, formData]);
+    setTemp_Id((temp_Id) => temp_Id + 1);
     setFormData({
-      id: "",
+      _id: temp_Id,
       categories: categories[0],
       occupancy: 0,
       isAgeRestricted: false,
@@ -120,18 +114,24 @@ const PricingCategories = () => {
     });
     handleClose();
   };
+
+  const handlePricingSubmit = () => {
+    console.log(rows);
+  };
   const submit = async () => {
+    console.log(rows);
     const pricingRows = rows.map((row) => {
       return {
-        categories: row.categories.value,
+        ticket_category: row.categories?.value,
         occupancy: row.occupancy,
         min_age: row.min_age,
         max_age: row.max_age,
+        price: row.price,
       };
     });
     const removedNulls = pricingRows.filter((row, index) => index !== 0);
     const data = {
-      pricing: removedNulls,
+      pricing: pricingRows,
     };
     const response = await fetch(
       "http://127.0.0.1:3232/experience/pricing/" + experienceId,
@@ -146,6 +146,24 @@ const PricingCategories = () => {
     const data2 = await response.json();
     console.log(data2);
     navigate("/meetingPickup", { state: { ...data2 } });
+  };
+
+  const handleTravelSubmit = async () => {
+    const data = {
+      travelling_facility: travelling_facility,
+    };
+    const response = await fetch(
+      "http://127.0.0.1:3232/experience/" + experienceId,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const data2 = await response.json();
+    console.log(data2);
   };
   return (
     <>
@@ -178,7 +196,11 @@ const PricingCategories = () => {
                   options={categories}
                   sx={{ width: "263px" }}
                   size="small"
-                  value={formData?.categories?.label || ""}
+                  value={
+                    categories.find(
+                      (option) => option.label === formData.categories.label
+                    ) || null
+                  }
                   onChange={(event, newValue) => {
                     setFormData({
                       ...formData,
@@ -257,7 +279,7 @@ const PricingCategories = () => {
                         onChange={(e) => {
                           setFormData({
                             ...formData,
-                            max_age: e.target.value,
+                            max_age: parseFloat(e.target.value),
                           });
                         }}
                         InputLabelProps={{
@@ -367,27 +389,17 @@ const PricingCategories = () => {
                     value={row?.price || ""}
                     onChange={(e) => {
                       setRows(
-                        rows?.map((r) =>
-                          r === row ? { ...r, price: e.target.value } : r
-                        )
+                        rows?.map((r) => {
+                          console.log(r, "test");
+                          return r._id === row._id
+                            ? { ...r, price: parseFloat(e.target.value) }
+                            : r;
+                        })
                       );
                     }}
                   ></TextField>
                 </div>
               ))}
-              {/* <FormGroup>
-                <FormControlLabel
-                  style={{ margin: 0 }}
-                  control={<Checkbox />}
-                  label="Adult"
-                />
-              </FormGroup>
-              <TextField
-                id="outlined-basic"
-                label="Price"
-                variant="outlined"
-                size="small"
-              /> */}
             </div>
             <div
               style={{
@@ -397,7 +409,9 @@ const PricingCategories = () => {
                 marginTop: "20px",
               }}
             >
-              <Button variant="contained">Submit</Button>
+              <Button variant="contained" onClick={handlePricingSubmit}>
+                Submit
+              </Button>
             </div>
           </div>
 
@@ -428,11 +442,13 @@ const PricingCategories = () => {
                   label="Price"
                   variant="outlined"
                   size="small"
-                  value={travelling_facility?.pick_up_and_drop || ""}
+                  value={travelling_facility?.pick_up_and_drop?.price || ""}
                   onChange={(e) => {
                     setTravelling_facility({
                       ...travelling_facility,
-                      pick_up_and_drop: e.target.value,
+                      pick_up_and_drop: {
+                        price: parseFloat(e.target.value),
+                      },
                     });
                   }}
                 />
@@ -453,11 +469,13 @@ const PricingCategories = () => {
                   label="Price"
                   variant="outlined"
                   size="small"
-                  value={travelling_facility?.pick_up_only || ""}
+                  value={travelling_facility?.pick_up_only?.price || ""}
                   onChange={(e) => {
                     setTravelling_facility({
                       ...travelling_facility,
-                      pick_up_only: e.target.value,
+                      pick_up_only: {
+                        price: parseFloat(e.target.value),
+                      },
                     });
                   }}
                 />
@@ -477,11 +495,13 @@ const PricingCategories = () => {
                   label="Price"
                   variant="outlined"
                   size="small"
-                  value={travelling_facility?.drop_only || ""}
+                  value={travelling_facility?.drop_only?.price || ""}
                   onChange={(e) => {
                     setTravelling_facility({
                       ...travelling_facility,
-                      drop_only: e.target.value,
+                      drop_only: {
+                        price: parseFloat(e.target.value),
+                      },
                     });
                   }}
                 />
@@ -495,7 +515,9 @@ const PricingCategories = () => {
                 marginTop: "20px",
               }}
             >
-              <Button variant="contained">Submit</Button>
+              <Button variant="contained" onClick={handleTravelSubmit}>
+                Submit
+              </Button>
             </div>
           </div>
         </div>
