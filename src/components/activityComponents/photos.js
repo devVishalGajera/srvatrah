@@ -1,13 +1,17 @@
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Box, Button, IconButton, Paper } from "@mui/material";
+import { Box, Button, Grid, IconButton, Paper } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+
 const Photos = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const localId = localStorage.getItem("_id");
   const [experienceId, setExperienceId] = useState(localId ? localId : "");
   const [photos, setPhotos] = useState();
+  const [showBackdrop, setShowBackDrop] = useState(null);
   useEffect(() => {
     if (experienceId) {
       (async function () {
@@ -118,8 +122,8 @@ const Photos = () => {
             boxShadow: "none",
             justifyContet: "center",
           }}
-          // onDrop={handleDrop}
-          // onDragOver={preventDefault}
+        // onDrop={handleDrop}
+        // onDragOver={preventDefault}
         >
           <input
             type="file"
@@ -165,6 +169,20 @@ const Photos = () => {
           Continue
         </Button>
       </div>
+
+      <Grid container sx={{ mt: 5 }} spacing={2}>
+        {photos?.map((item, index) =>
+          <Grid item xs={4} sx={{ mr: 1 }} onMouseEnter={() => setShowBackDrop(index)} onMouseLeave={() => setShowBackDrop(null)}>
+            <div style={{ position: 'relative' }}>
+              {showBackdrop === index && <div className="showBackdrop">
+                <DeleteIcon sx={{ color: 'white', cursor: 'pointer' }} />
+                <EditIcon sx={{ color: 'white', cursor: 'pointer' }} />
+              </div>}
+              <img src={item?.path} height="100%" width="100%" style={{ maxHeight: '300px' }} />
+            </div>
+          </Grid>
+        )}
+      </Grid>
     </div>
   );
 };
