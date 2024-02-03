@@ -36,8 +36,6 @@ const PricingCategories = () => {
   const localID = localStorage.getItem("_id");
   const [experienceId, setExperienceId] = useState(localID ? localID : "");
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   const [isSwitchOn, setIsSwitchOn] = useState(false);
   const [travelling_facility, setTravelling_facility] = useState({
@@ -62,6 +60,13 @@ const PricingCategories = () => {
     min_age: null,
     max_age: null,
   });
+  const handleOpen = () => {
+    setTemp_Id((temp_Id) => temp_Id + 1);
+
+    setOpen(true);
+  };
+  const handleClose = () => setOpen(false);
+
   useEffect(() => {
     if (experienceId && experienceId?.length > 0) {
       (async function () {
