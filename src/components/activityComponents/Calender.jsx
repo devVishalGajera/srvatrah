@@ -386,12 +386,15 @@ const Calendar = () => {
         return;
       case RecurringTypes.BETWEEN_TWO_DATES:
         console.log(formVal, "formVal");
+        const startTimestr = `${new Date(formVal.startDate)
+          .toString()
+          .replace(/T.*$/, "")}T${startStr}`;
         const betweenEvent = {
           title: startTime.find((time) => time._id === formVal.start_time),
           rrule: {
             freq: "daily",
             interval: 1,
-            dtstart: todayStrWithTime,
+            dtstart: new Date(formVal.startDate),
             until: formVal.endDate,
             byhour: startHoursArr.map((hour) => parseInt(hour)),
           },
@@ -399,6 +402,7 @@ const Calendar = () => {
           participant: formVal.participant,
         };
         console.log(betweenEvent, "backendEvent");
+        setCurrentEvents([betweenEvent]);
     }
   };
 
@@ -518,12 +522,33 @@ const Calendar = () => {
                                   type="checkbox"
                                   name={`start_time.${index}`}
                                   onChange={(e) => {
-                                    console.log(time);
-                                    e.target.checked
-                                      ? push(time._id)
-                                      : remove(time._id);
+                                    const isChecked = e.target.checked;
+                                    const timeId = time._id;
+                                    const startTimes = values.start_time || [];
+                                    console.log(startTimes, "startTimes");
+                                    if (
+                                      isChecked &&
+                                      !startTimes.includes(timeId)
+                                    ) {
+                                      setFieldValue("start_time", [
+                                        ...startTimes,
+                                        timeId,
+                                      ]);
+                                    } else if (
+                                      !isChecked &&
+                                      startTimes.includes(timeId)
+                                    ) {
+                                      setFieldValue(
+                                        "start_time",
+                                        startTimes.filter((id) => id !== timeId)
+                                      );
+                                    }
                                   }}
-                                  checked={index === 0}
+                                  checked={
+                                    values.start_time
+                                      ? values.start_time.includes(time._id)
+                                      : false
+                                  }
                                 />
                                 {time.start_time}
                               </div>
@@ -531,6 +556,43 @@ const Calendar = () => {
                           </>
                         )}
                       </FieldArray>
+
+                      {/* <FieldArray name="start_time">
+                        {({ form, push, remove }) => (
+                          <>
+                            {startTime.map((time, index) => (
+                              <div key={index}>
+                                <Field
+                                  type="checkbox"
+                                  name={`start_time.${index}`}
+                                  onChange={(e) => {
+                                    if (
+                                      !values?.start_time &&
+                                      e.target.checked
+                                    ) {
+                                      push(time._id);
+                                      return;
+                                    }
+                                    if (
+                                      values.start_time &&
+                                      values?.start_time.includes(time._id)
+                                    ) {
+                                      remove(
+                                        values?.start_time.indexOf(time._id)
+                                      );
+                                      return;
+                                    }
+                                    if (e.target.checked) {
+                                      push(time._id);
+                                    }
+                                  }}
+                                />
+                                {time.start_time}
+                              </div>
+                            ))}
+                          </>
+                        )}
+                      </FieldArray> */}
                     </div>
                   </div>
                   <button type="submit">Submit</button>
@@ -546,6 +608,7 @@ const Calendar = () => {
             initialValues={{
               months: [],
               participant: { minimum: 0, maximum: 100 },
+              start_time: startTime[0]._id,
             }}
             validationSchema={Yup.object({
               months: Yup.array()
@@ -660,6 +723,7 @@ const Calendar = () => {
                 </div>
                 <div>
                   <h6>Select all start times</h6>
+
                   <FieldArray name="start_time">
                     {({ form, push, remove }) => (
                       <>
@@ -669,12 +733,30 @@ const Calendar = () => {
                               type="checkbox"
                               name={`start_time.${index}`}
                               onChange={(e) => {
-                                console.log(time);
-                                e.target.checked
-                                  ? push(time._id)
-                                  : remove(time._id);
+                                const isChecked = e.target.checked;
+                                const timeId = time._id;
+                                const startTimes = values.start_time || [];
+                                console.log(startTimes, "startTimes");
+                                if (isChecked && !startTimes.includes(timeId)) {
+                                  setFieldValue("start_time", [
+                                    ...startTimes,
+                                    timeId,
+                                  ]);
+                                } else if (
+                                  !isChecked &&
+                                  startTimes.includes(timeId)
+                                ) {
+                                  setFieldValue(
+                                    "start_time",
+                                    startTimes.filter((id) => id !== timeId)
+                                  );
+                                }
                               }}
-                              checked={index === 0}
+                              checked={
+                                values.start_time
+                                  ? values.start_time.includes(time._id)
+                                  : false
+                              }
                             />
                             {time.start_time}
                           </div>
@@ -693,8 +775,8 @@ const Calendar = () => {
         return (
           <Formik
             initialValues={{
-              startDate: "",
-              endDate: "",
+              startDate: null,
+              endDate: null,
               participant: { minimum: 0, maximum: 100 },
             }}
             validationSchema={Yup.object({
@@ -708,10 +790,7 @@ const Calendar = () => {
               if (!values.start_time) {
                 values.start_time = startTime[0]._id;
               }
-              subMitingData(
-                values,
-                RecurringTypes.happen_beetween_selected_dates
-              );
+              subMitingData(values, RecurringTypes.BETWEEN_TWO_DATES);
               setSubmitting(false);
             }}
           >
@@ -734,13 +813,13 @@ const Calendar = () => {
                     <DemoContainer components={["DatePicker"]}>
                       <DatePicker
                         label="Start date"
-                        value={values.startDate}
                         onChange={(newValue) => {
                           setFieldValue("startDate", newValue);
                         }}
                         renderInput={(params) => (
                           <TextField>{params.inputProps.value}</TextField>
                         )}
+                        value={values.startDate || ""}
                       />
                     </DemoContainer>
                   </LocalizationProvider>
@@ -748,13 +827,13 @@ const Calendar = () => {
                     <DemoContainer components={["DatePicker"]}>
                       <DatePicker
                         label="End date"
-                        value={values.endDate}
                         onChange={(newValue) => {
                           setFieldValue("endDate", newValue);
                         }}
                         renderInput={(params) => (
                           <TextField>{params.inputProps.value}</TextField>
                         )}
+                        value={values.endDate || null}
                       />
                     </DemoContainer>
                   </LocalizationProvider>
@@ -780,10 +859,8 @@ const Calendar = () => {
                     }}
                   >
                     <div style={{ width: "20%" }}>
-                      <Field
-                        type="number"
-                        name="participant.minimum"
-                        render={({ field, meta }) => (
+                      <Field name="participant.minimum">
+                        {({ field }) => (
                           <TextField
                             size="small"
                             id="outlined-number"
@@ -800,17 +877,15 @@ const Calendar = () => {
                                 );
                               }
                             }}
-                            value={values.participant.minimum}
+                            value={values.participant?.minimum || 0}
                           />
                         )}
-                      />
+                      </Field>
                     </div>
                     <div>minimum</div>
                     <div style={{ width: "20%" }}>
-                      <Field
-                        type="number"
-                        name="participant.maximum"
-                        render={({ field }) => (
+                      <Field name="participant.maximum">
+                        {({ field }) => (
                           <TextField
                             size="small"
                             id="outlined-number"
@@ -820,19 +895,68 @@ const Calendar = () => {
                               shrink: true,
                             }}
                             onChange={(e) => {
-                              if (e.target.value < values.participant.minimum) {
+                              if (
+                                e.target.value < values?.participant?.minimum
+                              ) {
                                 setFieldValue(
                                   "participant.minimum",
                                   e.target.value
                                 );
                               }
                             }}
-                            value={values.participant.maximum}
+                            value={values?.participant?.maximum || 100}
                           />
                         )}
-                      />
+                      </Field>
                     </div>
                     <div>maximum</div>
+                  </div>
+
+                  <div>
+                    <h6>Select all start times</h6>
+                    <FieldArray name="start_time">
+                      {({ form, push, remove }) => (
+                        <>
+                          {startTime.map((time, index) => (
+                            <div key={index}>
+                              <Field
+                                type="checkbox"
+                                name={`start_time.${index}`}
+                                onChange={(e) => {
+                                  const isChecked = e.target.checked;
+                                  const timeId = time._id;
+                                  const startTimes = values.start_time || [];
+                                  console.log(startTimes, "startTimes");
+                                  if (
+                                    isChecked &&
+                                    !startTimes.includes(timeId)
+                                  ) {
+                                    setFieldValue("start_time", [
+                                      ...startTimes,
+                                      timeId,
+                                    ]);
+                                  } else if (
+                                    !isChecked &&
+                                    startTimes.includes(timeId)
+                                  ) {
+                                    setFieldValue(
+                                      "start_time",
+                                      startTimes.filter((id) => id !== timeId)
+                                    );
+                                  }
+                                }}
+                                checked={
+                                  values.start_time
+                                    ? values.start_time.includes(time._id)
+                                    : false
+                                }
+                              />
+                              {time.start_time}
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </FieldArray>
                   </div>
                 </div>
                 <button type="submit">Submit</button>
@@ -840,6 +964,204 @@ const Calendar = () => {
             )}
           </Formik>
         );
+
+      // return (
+      //   <Formik
+      //     initialValues={{
+      //       startDate: "",
+      //       endDate: "",
+      //       participant: { minimum: 0, maximum: 100 },
+      //     }}
+      //     validationSchema={Yup.object({
+      //       startDate: Yup.date().required("Start date is required"),
+      //       endDate: Yup.date()
+      //         .min(Yup.ref("startDate"), "End date must be after start date")
+      //         .required("End date is required"),
+      //     })}
+      //     onSubmit={(values, { setSubmitting }) => {
+      //       console.log(values);
+      //       if (!values.start_time) {
+      //         values.start_time = startTime[0]._id;
+      //       }
+      //       subMitingData(
+      //         values,
+      //         RecurringTypes.happen_beetween_selected_dates
+      //       );
+      //       setSubmitting(false);
+      //     }}
+      //   >
+      //     {({ values, setFieldValue }) => (
+      //       <Form style={{ padding: "25px" }}>
+      //         <h6>Affected dates</h6>
+      //         <span
+      //           style={{
+      //             fontStyle: "italic",
+      //           }}
+      //         >
+      //           Select which dates this availability rule applies to.
+      //         </span>
+      //         <div
+      //           style={{
+      //             display: "flex",
+      //           }}
+      //         >
+      //           <LocalizationProvider dateAdapter={AdapterDayjs}>
+      //             <DemoContainer components={["DatePicker"]}>
+      //               <DatePicker
+      //                 label="Start date"
+      //                 value={values.startDate}
+      //                 onChange={(newValue) => {
+      //                   setFieldValue("startDate", newValue);
+      //                 }}
+      //                 renderInput={(params) => (
+      //                   <TextField>{params.inputProps.value}</TextField>
+      //                 )}
+      //               />
+      //             </DemoContainer>
+      //           </LocalizationProvider>
+      //           <LocalizationProvider dateAdapter={AdapterDayjs}>
+      //             <DemoContainer components={["DatePicker"]}>
+      //               <DatePicker
+      //                 label="End date"
+      //                 value={values.endDate}
+      //                 onChange={(newValue) => {
+      //                   setFieldValue("endDate", newValue);
+      //                 }}
+      //                 renderInput={(params) => (
+      //                   <TextField>{params.inputProps.value}</TextField>
+      //                 )}
+      //               />
+      //             </DemoContainer>
+      //           </LocalizationProvider>
+      //         </div>
+      //         <div>
+      //           <h6>Participants (PAX)</h6>
+      //           <span
+      //             style={{
+      //               fontStyle: "italic",
+      //               paddingBottom: "5px",
+      //               fontSize: "15px",
+      //             }}
+      //           >
+      //             The experience will only be bookable if minimum participants
+      //             are met.
+      //           </span>
+      //           <div
+      //             style={{
+      //               display: "flex",
+      //               alignItems: "center",
+      //               gap: "15px",
+      //               paddingTop: "5px",
+      //             }}
+      //           >
+      //             <div style={{ width: "20%" }}>
+      //               <Field
+      //                 type="number"
+      //                 name="participant.minimum"
+      //                 render={({ field, meta }) => (
+      //                   <TextField
+      //                     size="small"
+      //                     id="outlined-number"
+      //                     type="number"
+      //                     {...field}
+      //                     InputLabelProps={{
+      //                       shrink: true,
+      //                     }}
+      //                     onChange={(e) => {
+      //                       if (e.target.value > values.participant.maximum) {
+      //                         setFieldValue(
+      //                           "participant.maximum",
+      //                           e.target.value
+      //                         );
+      //                       }
+      //                     }}
+      //                     value={values.participant.minimum}
+      //                   />
+      //                 )}
+      //               />
+      //             </div>
+      //             <div>minimum</div>
+      //             <div style={{ width: "20%" }}>
+      //               <Field
+      //                 type="number"
+      //                 name="participant.maximum"
+      //                 render={({ field }) => (
+      //                   <TextField
+      //                     size="small"
+      //                     id="outlined-number"
+      //                     type="number"
+      //                     {...field}
+      //                     InputLabelProps={{
+      //                       shrink: true,
+      //                     }}
+      //                     onChange={(e) => {
+      //                       if (e.target.value < values.participant.minimum) {
+      //                         setFieldValue(
+      //                           "participant.minimum",
+      //                           e.target.value
+      //                         );
+      //                       }
+      //                     }}
+      //                     value={values.participant.maximum}
+      //                   />
+      //                 )}
+      //               />
+      //             </div>
+      //             <div>maximum</div>
+      //           </div>
+
+      //           <div>
+      //             <h6>Select all start times</h6>
+      //             <FieldArray name="start_time">
+      //               {({ form, push, remove }) => (
+      //                 <>
+      //                   {startTime.map((time, index) => (
+      //                     <div key={index}>
+      //                       <Field
+      //                         type="checkbox"
+      //                         name={`start_time.${index}`}
+      //                         onChange={(e) => {
+      //                           const isChecked = e.target.checked;
+      //                           const timeId = time._id;
+      //                           const startTimes = values.start_time || [];
+      //                           console.log(startTimes, "startTimes");
+      //                           if (
+      //                             isChecked &&
+      //                             !startTimes.includes(timeId)
+      //                           ) {
+      //                             setFieldValue("start_time", [
+      //                               ...startTimes,
+      //                               timeId,
+      //                             ]);
+      //                           } else if (
+      //                             !isChecked &&
+      //                             startTimes.includes(timeId)
+      //                           ) {
+      //                             setFieldValue(
+      //                               "start_time",
+      //                               startTimes.filter((id) => id !== timeId)
+      //                             );
+      //                           }
+      //                         }}
+      //                         checked={
+      //                           values.start_time
+      //                             ? values.start_time.includes(time._id)
+      //                             : false
+      //                         }
+      //                       />
+      //                       {time.start_time}
+      //                     </div>
+      //                   ))}
+      //                 </>
+      //               )}
+      //             </FieldArray>
+      //           </div>
+      //         </div>
+      //         <button type="submit">Submit</button>
+      //       </Form>
+      //     )}
+      //   </Formik>
+      // );
 
       case "happen on a selected date":
         return (
@@ -885,7 +1207,7 @@ const Calendar = () => {
                           setFieldValue("selectedDate", date);
                           setSelectedDate(date);
                         }}
-                        slotProps={{ textField: { size: "small" } }}
+                        // slotProps={{ textField: { size: "small" } }}
                       />
                     </DemoContainer>
                   </LocalizationProvider>
@@ -961,6 +1283,7 @@ const Calendar = () => {
                     {/*display start Time checkBox*/}
                     <div>
                       <h6>Select all start times</h6>
+
                       <FieldArray name="start_time">
                         {({ form, push, remove }) => (
                           <>
@@ -970,12 +1293,33 @@ const Calendar = () => {
                                   type="checkbox"
                                   name={`start_time.${index}`}
                                   onChange={(e) => {
-                                    console.log(time);
-                                    e.target.checked
-                                      ? push(time._id)
-                                      : remove(time._id);
+                                    const isChecked = e.target.checked;
+                                    const timeId = time._id;
+                                    const startTimes = values.start_time || [];
+                                    console.log(startTimes, "startTimes");
+                                    if (
+                                      isChecked &&
+                                      !startTimes.includes(timeId)
+                                    ) {
+                                      setFieldValue("start_time", [
+                                        ...startTimes,
+                                        timeId,
+                                      ]);
+                                    } else if (
+                                      !isChecked &&
+                                      startTimes.includes(timeId)
+                                    ) {
+                                      setFieldValue(
+                                        "start_time",
+                                        startTimes.filter((id) => id !== timeId)
+                                      );
+                                    }
                                   }}
-                                  checked={index === 0}
+                                  checked={
+                                    values.start_time
+                                      ? values.start_time.includes(time._id)
+                                      : false
+                                  }
                                 />
                                 {time.start_time}
                               </div>
