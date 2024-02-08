@@ -174,7 +174,7 @@ const Calendar = () => {
       navigate("/titel");
       return;
     }
-    (async function () {
+    (async function() {
       const response = await fetch(
         "http://localhost:3232/experience/" + experienceId,
         {
@@ -187,8 +187,8 @@ const Calendar = () => {
       const responseJson = await response.json();
       const { calender_events } = responseJson;
       if (calender_events && calender_events.length > 0) {
-        const events = calender_events.map((item) => item.event);
-        setCurrentEvents(events);
+        // const events = calender_events.map((item) => item.event);
+        setCurrentEvents(calender_events);
       }
     })();
     getStartTIme();
@@ -251,7 +251,7 @@ const Calendar = () => {
       <i>
         {eventInfo.event?.start_time
           ? startTime.find((time) => time._id === eventInfo.event?.start_time)
-              .start_time
+            .start_time
           : ""}
       </i>
     </>
@@ -260,7 +260,7 @@ const Calendar = () => {
     maxWidth: "100%",
     margin: "auto",
   };
-  const handleEventAdd = (event) => {};
+  const handleEventAdd = (event) => { };
   const handleOnFormSubmit = async () => {
     const data = currentEvents;
     const result = await fetch(
@@ -289,11 +289,9 @@ const Calendar = () => {
     }));
   };
   const handleBackendEventAdd = async (event) => {
-    const data = {
-      event: event,
-    };
+    const data = event;
     const result = await fetch(
-      "http://localhost:3232/experience/" + experienceId,
+      "http://localhost:3232/experience/events/" + experienceId,
       {
         method: "POST",
         headers: {
@@ -303,6 +301,7 @@ const Calendar = () => {
       }
     );
     const response = await result.json();
+    // setCurrentEvents(response);
     console.log(response, "response");
   };
   const subMitingData = async (formVal, type = RecurringTypes.WEEKLY) => {
@@ -401,6 +400,7 @@ const Calendar = () => {
           start_time: formVal.start_time,
           participant: formVal.participant,
         };
+        handleBackendEventAdd(betweenEvent);
         console.log(betweenEvent, "backendEvent");
         setCurrentEvents([betweenEvent]);
     }
@@ -1207,7 +1207,7 @@ const Calendar = () => {
                           setFieldValue("selectedDate", date);
                           setSelectedDate(date);
                         }}
-                        // slotProps={{ textField: { size: "small" } }}
+                      // slotProps={{ textField: { size: "small" } }}
                       />
                     </DemoContainer>
                   </LocalizationProvider>
@@ -1218,7 +1218,7 @@ const Calendar = () => {
                       name="switch"
                       onChange={(e) => setIsEventAllTime(e.target.checked)}
                       checked={isEventAllTime}
-                      // Handle switch state here if needed
+                    // Handle switch state here if needed
                     />
                   </FormGroup>
                 </div>
@@ -1338,10 +1338,10 @@ const Calendar = () => {
                     variant="contained"
                     type="submit"
 
-                    // onClick={onSubmit}
-                    // onClick={() => {
-                    //   createMeetingPoint();
-                    // }}
+                  // onClick={onSubmit}
+                  // onClick={() => {
+                  //   createMeetingPoint();
+                  // }}
                   >
                     Continue
                   </Button>
@@ -1459,8 +1459,8 @@ const Calendar = () => {
                           >
                             {startTime && startTime.length > 0
                               ? startTime.map((item, index) => {
-                                  <Radio key={index} value={item} />;
-                                })
+                                <Radio key={index} value={item} />;
+                              })
                               : null}
                           </RadioGroup>
                         }
@@ -1471,31 +1471,33 @@ const Calendar = () => {
               </div>
             </Box>
           </Modal>
+          <Modal
+            open={deleteEventModal}
+            onClose={() => setDeleteEventModal(false)}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            sx={{ overflowY: "scroll" }}
+          >
+            <Box sx={style}>
+              <div>
+                <div style={{ padding: "25px" }}>
+                  <h6>Are you sure you want to delete this event?</h6>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Button
+                    onClick={() => setDeleteEventModal(false)}
+                    variant="outlined"
+                  >
+                    Back
+                  </Button>
+                  <Button variant="contained" onClick={deleteEvent}>
+                    Continue
+                  </Button>
+                </div>
+              </div>
+            </Box>
+          </Modal>
         </div>
-        <Modal
-          open={deleteEventModal}
-          onClose={() => setDeleteEventModal(false)}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-          sx={{ overflowY: "scroll" }}
-        >
-          <div>
-            <div style={{ padding: "25px" }}>
-              <h6>Are you sure you want to delete this event?</h6>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <Button
-                onClick={() => setDeleteEventModal(false)}
-                variant="outlined"
-              >
-                Back
-              </Button>
-              <Button variant="contained" onClick={deleteEvent}>
-                Continue
-              </Button>
-            </div>
-          </div>
-        </Modal>
         <Button onClick={handleOnFormSubmit}>Countinue </Button>
       </div>
     </div>
