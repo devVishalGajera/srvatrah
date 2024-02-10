@@ -122,21 +122,48 @@ const OpeningHours = () => {
     console.log("checkboxOnchange", e, dayName);
     const check = e.target.checked;
     console.log("data1", data);
+    const mondayData = data.filter((item) => item["Monday"]);
+    // if mondayData is not empty copy it to selectedData
+    const selectedData = mondayData.length > 0 ? mondayData : data;
+    console.log("selectedData", selectedData);
 
-    setData((a) =>
-      check
-        ? [
-            ...a,
-            {
-              [dayName]: {
-                openHour: "00:00",
-                closeHour: "00:00",
-                isOpen: true,
+    if (mondayData && mondayData.length > 0) {
+      setData((a) =>
+        check
+          ? [
+              ...a,
+              {
+                [dayName]: {
+                  openHour:
+                    mondayData[0].Monday.openHour !== "00:00"
+                      ? mondayData[0].Monday.openHour
+                      : "00:00",
+                  closeHour:
+                    mondayData[0].Monday.closeHour !== "00:00"
+                      ? mondayData[0].Monday.closeHour
+                      : "00:00",
+                  isOpen: true,
+                },
               },
-            },
-          ]
-        : a.filter((item) => !item[dayName])
-    );
+            ]
+          : a.filter((item) => !item[dayName])
+      );
+    } else {
+      setData((a) =>
+        check
+          ? [
+              ...a,
+              {
+                [dayName]: {
+                  openHour: "00:00",
+                  closeHour: "00:00",
+                  isOpen: true,
+                },
+              },
+            ]
+          : a.filter((item) => !item[dayName])
+      );
+    }
   };
   console.log("data", data);
 

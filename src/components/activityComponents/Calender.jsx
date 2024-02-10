@@ -174,7 +174,7 @@ const Calendar = () => {
       navigate("/titel");
       return;
     }
-    (async function() {
+    (async function () {
       const response = await fetch(
         "http://localhost:3232/experience/" + experienceId,
         {
@@ -231,14 +231,32 @@ const Calendar = () => {
 
   const handleEventClick = (clickInfo) => {
     setDeleteEventModal(true);
+    console.log(clickInfo, " clickInfo");
     setCurrentSelectInfo(clickInfo);
   };
-  const deleteEvent = () => {
+  const deleteEvent = async () => {
     setDeleteEventModal(false);
     const events = currentEvents.filter(
-      (event) => event.id !== currentSelectedInfo.event.id
+      (event) => event._id !== currentSelectedInfo.event._id
     );
-    setCurrentEvents(events);
+    const data = {
+      calenderEvnetId: currentSelectedInfo.event?.extendedProps?._id,
+    };
+    console.log(data, "data");
+    const deleteEvets = await fetch(
+      "http://localhost:3232/experience/events/" + experienceId,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const response = await deleteEvets.json();
+    console.log(response, "response");
+    setCurrentEvents(response);
+    // setCurrentEvents(events);
   };
   const handleEvents = (events) => {
     setCurrentEvents(events);
@@ -247,11 +265,11 @@ const Calendar = () => {
   const renderEventContent = (eventInfo) => (
     <>
       <b>{eventInfo.timeText}</b>
-      <i>{eventInfo.event.title}</i>
+      {/* <i>{eventInfo.event.title}</i> */}
       <i>
         {eventInfo.event?.start_time
           ? startTime.find((time) => time._id === eventInfo.event?.start_time)
-            .start_time
+              .start_time
           : ""}
       </i>
     </>
@@ -260,7 +278,7 @@ const Calendar = () => {
     maxWidth: "100%",
     margin: "auto",
   };
-  const handleEventAdd = (event) => { };
+  const handleEventAdd = (event) => {};
   const handleOnFormSubmit = async () => {
     const data = currentEvents;
     const result = await fetch(
@@ -343,18 +361,29 @@ const Calendar = () => {
           start_time: formVal.start_time,
           participant: formVal.participant,
         };
+        console.log(backendEvent, "backendEvent for weekly");
         handleBackendEventAdd(backendEvent);
-        setCurrentEvents([backendEvent]);
         return backendEvent;
-      case RecurringTypes.MONTHLY:
+      case RecurringTypes.MONTHLY_SELECTED_DAYS:
         console.log(formVal, "formVal");
+        const daysForMont = [];
+        formVal.days.forEach((day) => {
+          if (day && day.length > 0) {
+            daysForMont.push(day.join(""));
+          }
+        });
         const monthlyEvent = {
           title: "my recurring event",
           rrule: {
             freq: "monthly",
             interval: 1,
-            bymonthday: formVal.days,
+            bymonth: formVal.months
+              .map((monthStr) => {
+                return monthArray.indexOf(monthStr) + 1;
+              })
+              .sort(),
             dtstart: todayStrWithTime,
+            byweekday: daysForMont,
             until: formVal.endDate ? formVal.endDate : "2025-06-01",
             byhour: startHoursArr.map((hour) => parseInt(hour)),
           },
@@ -362,8 +391,8 @@ const Calendar = () => {
           participant: formVal.participant,
         };
         handleBackendEventAdd(monthlyEvent);
-        console.log(monthlyEvent, "backendEvent");
-        setCurrentEvents((prev) => [...prev, monthlyEvent]);
+        setCurrentEvents(monthlyEvent);
+        console.log(monthlyEvent, "backendEvent for monthly");
         return;
       case RecurringTypes.SPECIFIC_DATE:
         console.log(formVal, "formVal00000000000");
@@ -372,7 +401,7 @@ const Calendar = () => {
           rrule: {
             freq: "daily",
             interval: 1,
-            dtstart: todayStrWithTime,
+            dtstart: new Date(formVal.selectedDate),
             byhour: startHoursArr.map((hour) => parseInt(hour)),
             count: startHoursArr.length,
           },
@@ -380,8 +409,8 @@ const Calendar = () => {
           participant: formVal.participant,
         };
 
-        console.log(specificEvent, "backendEvent");
-        setCurrentEvents([specificEvent]);
+        console.log(specificEvent, "backendEvent for specific date");
+        handleBackendEventAdd(specificEvent);
         return;
       case RecurringTypes.BETWEEN_TWO_DATES:
         console.log(formVal, "formVal");
@@ -393,15 +422,14 @@ const Calendar = () => {
           rrule: {
             freq: "daily",
             interval: 1,
-            dtstart: new Date(formVal.startDate),
-            until: formVal.endDate,
+            dtstart: startTimestr,
+            until: new Date(formVal.endDate),
             byhour: startHoursArr.map((hour) => parseInt(hour)),
           },
           start_time: formVal.start_time,
           participant: formVal.participant,
         };
         handleBackendEventAdd(betweenEvent);
-        console.log(betweenEvent, "backendEvent");
         setCurrentEvents([betweenEvent]);
     }
   };
@@ -1207,7 +1235,7 @@ const Calendar = () => {
                           setFieldValue("selectedDate", date);
                           setSelectedDate(date);
                         }}
-                      // slotProps={{ textField: { size: "small" } }}
+                        // slotProps={{ textField: { size: "small" } }}
                       />
                     </DemoContainer>
                   </LocalizationProvider>
@@ -1218,7 +1246,7 @@ const Calendar = () => {
                       name="switch"
                       onChange={(e) => setIsEventAllTime(e.target.checked)}
                       checked={isEventAllTime}
-                    // Handle switch state here if needed
+                      // Handle switch state here if needed
                     />
                   </FormGroup>
                 </div>
@@ -1338,10 +1366,10 @@ const Calendar = () => {
                     variant="contained"
                     type="submit"
 
-                  // onClick={onSubmit}
-                  // onClick={() => {
-                  //   createMeetingPoint();
-                  // }}
+                    // onClick={onSubmit}
+                    // onClick={() => {
+                    //   createMeetingPoint();
+                    // }}
                   >
                     Continue
                   </Button>
@@ -1459,8 +1487,8 @@ const Calendar = () => {
                           >
                             {startTime && startTime.length > 0
                               ? startTime.map((item, index) => {
-                                <Radio key={index} value={item} />;
-                              })
+                                  <Radio key={index} value={item} />;
+                                })
                               : null}
                           </RadioGroup>
                         }
@@ -1483,7 +1511,9 @@ const Calendar = () => {
                 <div style={{ padding: "25px" }}>
                   <h6>Are you sure you want to delete this event?</h6>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <Button
                     onClick={() => setDeleteEventModal(false)}
                     variant="outlined"
