@@ -45,7 +45,7 @@ const Description = () => {
     if (experienceId && experienceId.length > 0) {
       (async function () {
         const response = await fetch(
-          `http://127.0.0.1:3232/experience/${experienceId}`,
+          `https://demo.turangh.com/experience/${experienceId}`,
           {
             method: "GET",
             headers: {
@@ -74,7 +74,7 @@ const Description = () => {
       description: { short_des: shortDescription, detail_dec: description },
     };
     const response = await fetch(
-      `http://127.0.0.1:3232/experience/${experienceId}`,
+      `https://demo.turangh.com/experience/${experienceId}`,
       {
         method: "PUT",
         headers: {

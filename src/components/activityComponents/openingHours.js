@@ -21,7 +21,7 @@ const OpeningHours = () => {
   useEffect(() => {
     (async function () {
       const data = await fetch(
-        `http://127.0.0.1:3232/experience/${experienceId}/`,
+        `https://demo.turangh.com/experience/${experienceId}/`,
         {
           method: "GET",
           headers: {
@@ -69,7 +69,7 @@ const OpeningHours = () => {
     useState(false);
   const createOpeningHours = async () => {
     if (!showDefaultOperatingHours) {
-      navigate("/timeDatePass", {
+      navigate("/bookingCutoff", {
         state: {
           ...{},
         },
@@ -100,7 +100,7 @@ const OpeningHours = () => {
       availability_detail: formattedAvailability,
     };
     const response = await fetch(
-      `http://127.0.0.1:3232/experience/updateAvailability/${experienceId}`,
+      `https://demo.turangh.com/experience/updateAvailability/${experienceId}`,
       {
         method: "POST",
         headers: {
@@ -1046,7 +1046,7 @@ export default OpeningHours;
 //     const data = {
 //       availability_detail: formattedAvailability,
 //     };
-//     const response = await fetch(`http://127.0.0.1:3232/experience/${_id}`, {
+//     const response = await fetch(`https://demo.turangh.com/experience/${_id}`, {
 //       method: "PUT",
 //       headers: {
 //         "Content-Type": "application/json",

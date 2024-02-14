@@ -71,7 +71,7 @@ const PricingCategories = () => {
     if (experienceId && experienceId?.length > 0) {
       (async function () {
         const response = await fetch(
-          "http://127.0.0.1:3232/experience/" + experienceId,
+          "https://demo.turangh.com/experience/" + experienceId,
           {
             method: "GET",
             headers: {
@@ -139,7 +139,7 @@ const PricingCategories = () => {
       pricing: pricingRows,
     };
     const response = await fetch(
-      "http://127.0.0.1:3232/experience/pricing/" + experienceId,
+      "https://demo.turangh.com/experience/pricing/" + experienceId,
       {
         method: "POST",
         headers: {
@@ -158,7 +158,7 @@ const PricingCategories = () => {
       travelling_facility: travelling_facility,
     };
     const response = await fetch(
-      "http://127.0.0.1:3232/experience/" + experienceId,
+      "https://demo.turangh.com/experience/" + experienceId,
       {
         method: "PUT",
         headers: {

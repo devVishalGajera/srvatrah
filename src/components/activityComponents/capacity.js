@@ -19,7 +19,7 @@ const Capacity = () => {
     if (experienceId && experienceId.length > 0) {
       (async function () {
         const response = await fetch(
-          "http://127.0.0.1:3232/experience/" + experienceId,
+          "https://demo.turangh.com/experience/" + experienceId,
           {
             method: "GET",
             headers: {
@@ -51,7 +51,7 @@ const Capacity = () => {
       capacity,
     };
     const response = await fetch(
-      "http://127.0.0.1:3232/experience/" + experienceId,
+      "https://demo.turangh.com/experience/" + experienceId,
       {
         method: "PUT",
         headers: {

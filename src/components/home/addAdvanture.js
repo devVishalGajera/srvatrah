@@ -1,53 +1,59 @@
-import React from 'react'
-import '../../assets/css/app.min.css'
-import '../../assets/css/bootstrap.min.css'
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import { useState } from 'react';
+import React from "react";
+import "../../assets/css/app.min.css";
+import "../../assets/css/bootstrap.min.css";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import { useState } from "react";
 // import jwt from 'react-jwt';
-import Cookies from 'js-cookie';
-import { FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select } from '@mui/material';
-
-
+import Cookies from "js-cookie";
+import {
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+} from "@mui/material";
 
 const AddAdvanture = () => {
   const [formData, setFormData] = useState({
-    packageName: '',
-    packageDuration: '',
-    availableVehicle: [{ vehicleType: '', price: '' }],
-    groupSize: '',
+    packageName: "",
+    packageDuration: "",
+    availableVehicle: [{ vehicleType: "", price: "" }],
+    groupSize: "",
     include: [],
     exclude: [],
-    startLocation: '',
-    advantureLocation: '',
-    discount: '',
-    price: '',
-    overview: '',
-    mapLink: '',
+    startLocation: "",
+    advantureLocation: "",
+    discount: "",
+    price: "",
+    overview: "",
+    mapLink: "",
     unEligibility: { age: [], diseases: [] },
-    availableSlot: '',
+    availableSlot: "",
     availableLanguage: [],
-    cancellationPolicy: '',
-    highlight: '',
+    cancellationPolicy: "",
+    highlight: "",
     image: null, // New field for a single image
     pickUpAndDrop: false,
     pickUpOnly: false,
     dropOnly: false,
-    pickUpLocation: '',
-    dropLocation: '',
-    pickUpAndDropPrice: '',
-    pickUpOnlyPrice: '',
-    dropOnlyPrice: '',
+    pickUpLocation: "",
+    dropLocation: "",
+    pickUpAndDropPrice: "",
+    pickUpOnlyPrice: "",
+    dropOnlyPrice: "",
     ageTypes: {
       adult: false,
       children: false,
       senior: false,
     },
     age: {
-      adult: '',
-      children: '',
-      senior: '',
+      adult: "",
+      children: "",
+      senior: "",
     },
   });
 
@@ -62,24 +68,26 @@ const AddAdvanture = () => {
     setFormData((prevData) => ({
       ...prevData,
       [key]: !prevData[key],
-      [`${key}Location`]: '',
-      [`${key}Price`]: '',
+      [`${key}Location`]: "",
+      [`${key}Price`]: "",
     }));
   };
 
-
   const handleAgeCheckBoxChange = (type) => {
     setFormData((prevData) => {
-      const updatedAgeTypes = { ...prevData.ageTypes, [type]: !prevData.ageTypes[type] };
-      let defaultAge = '';
+      const updatedAgeTypes = {
+        ...prevData.ageTypes,
+        [type]: !prevData.ageTypes[type],
+      };
+      let defaultAge = "";
 
       // Set different default ages based on the checkbox type
-      if (type === 'adult') {
-        defaultAge = '18';
-      } else if (type === 'children') {
-        defaultAge = '10';
-      } else if (type === 'senior') {
-        defaultAge = '60+';
+      if (type === "adult") {
+        defaultAge = "18";
+      } else if (type === "children") {
+        defaultAge = "10";
+      } else if (type === "senior") {
+        defaultAge = "60+";
       }
 
       return {
@@ -87,11 +95,11 @@ const AddAdvanture = () => {
         ageTypes: updatedAgeTypes,
         age: {
           ...prevData.age,
-          [type]: updatedAgeTypes[type] ? defaultAge : '',
+          [type]: updatedAgeTypes[type] ? defaultAge : "",
         },
         unEligibility: {
           ...prevData.unEligibility,
-          age: updatedAgeTypes[type] ? defaultAge : '',
+          age: updatedAgeTypes[type] ? defaultAge : "",
         },
       };
     });
@@ -156,7 +164,10 @@ const AddAdvanture = () => {
   const handleAddVehicle = () => {
     setFormData((prevData) => ({
       ...prevData,
-      availableVehicle: [...prevData.availableVehicle, { vehicleType: '', price: '' }],
+      availableVehicle: [
+        ...prevData.availableVehicle,
+        { vehicleType: "", price: "" },
+      ],
     }));
   };
 
@@ -167,7 +178,6 @@ const AddAdvanture = () => {
       return { ...prevData, availableVehicle: updatedVehicles };
     });
   };
-
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -192,8 +202,14 @@ const AddAdvanture = () => {
       const queryParams = new URLSearchParams();
       Object.entries(formData).forEach(([key, value]) => {
         // Exclude image and themeImages from query parameters
-        if (key !== 'file' && key !== 'subfile') {
-          if (key === 'availableVehicle' || key === 'unEligibility' || key === 'include' || key === 'exclude' || key === 'availableLanguage') {
+        if (key !== "file" && key !== "subfile") {
+          if (
+            key === "availableVehicle" ||
+            key === "unEligibility" ||
+            key === "include" ||
+            key === "exclude" ||
+            key === "availableLanguage"
+          ) {
             // Convert objects and arrays to JSON strings
             queryParams.append(key, JSON.stringify(value));
           } else {
@@ -204,33 +220,36 @@ const AddAdvanture = () => {
 
       // Creating form data and appending the image
       const formDataWithImages = new FormData();
-      formDataWithImages.append('file', formData.image);
+      formDataWithImages.append("file", formData.image);
 
       // Appending themeImages to form data
       // formData.themeImages.forEach((themeImage, index) => {
       //   formDataWithImages.append(`subfile[${index}]`, themeImage);
       // });
 
-      const response = await fetch(`http://127.0.0.1:3232/advanture/?${queryParams.toString()}`, {
-        method: 'POST',
-        headers: {
-          // 'Cookie': `roomInfo=${token}`,
-        },
-        body: formDataWithImages,
-      });
+      const response = await fetch(
+        `https://demo.turangh.com/advanture/?${queryParams.toString()}`,
+        {
+          method: "POST",
+          headers: {
+            // 'Cookie': `roomInfo=${token}`,
+          },
+          body: formDataWithImages,
+        }
+      );
       if (response.ok) {
-        alert('Advanture added successfully');
+        alert("Advanture added successfully");
       } else {
-        console.error('Failed to add Advanture');
+        console.error("Failed to add Advanture");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
   return (
     <div className="col-lg-12">
-      <div className="card" style={{ margin: '15px', padding: '15px' }}>
+      <div className="card" style={{ margin: "15px", padding: "15px" }}>
         <div className="card-header align-items-center d-flex">
           <h1 className="card-title  flex-grow-1 ">Add Adventure</h1>
         </div>
@@ -239,157 +258,205 @@ const AddAdvanture = () => {
           <div className="live-preview">
             <div className="row g-3">
               <div className="col-sm-4">
-                <label htmlFor="packageNameInput" className="form-label">Package Name</label>
+                <label htmlFor="packageNameInput" className="form-label">
+                  Package Name
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Package Name"
                   aria-label="package-name"
-                  onChange={(e) => handleInputChange('packageName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("packageName", e.target.value)
+                  }
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor="packageDurationInput" className="form-label">Package Duration</label>
+                <label htmlFor="packageDurationInput" className="form-label">
+                  Package Duration
+                </label>
                 <input
                   type="number"
                   className="form-control"
                   placeholder="Package Duration"
                   aria-label="package-duration"
-                  onChange={(e) => handleInputChange('packageDuration', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("packageDuration", e.target.value)
+                  }
                 />
               </div>
 
               <div className="col-sm-4">
-                <label htmlFor="groupSizeInput" className="form-label">Group Size</label>
+                <label htmlFor="groupSizeInput" className="form-label">
+                  Group Size
+                </label>
                 <input
                   type="number"
                   className="form-control"
                   placeholder="Group Size"
                   aria-label="group-size"
-                  onChange={(e) => handleInputChange('groupSize', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("groupSize", e.target.value)
+                  }
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`includeInput`} className="form-label">Include</label>
+                <label htmlFor={`includeInput`} className="form-label">
+                  Include
+                </label>
                 <Autocomplete
                   multiple
                   id={`includeInput`}
-                  size='small'
+                  size="small"
                   options={includeOptions} // You need to define this array
                   getOptionLabel={(option) => option.label}
                   value={formData.include.map((item) => ({ label: item }))}
-                  onChange={(event, value) => handleAutocompleteChangeMultiple('include', event, value)}
+                  onChange={(event, value) =>
+                    handleAutocompleteChangeMultiple("include", event, value)
+                  }
                   filterSelectedOptions
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Include"
-                    />
+                    <TextField {...params} placeholder="Include" />
                   )}
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`excludeInput`} className="form-label">Exclude</label>
+                <label htmlFor={`excludeInput`} className="form-label">
+                  Exclude
+                </label>
                 <Autocomplete
                   multiple
                   id={`excludeInput`}
-                  size='small'
+                  size="small"
                   options={excludeOptions} // You need to define this array
                   getOptionLabel={(option) => option.label}
                   value={formData.exclude.map((item) => ({ label: item }))}
-                  onChange={(event, value) => handleAutocompleteChangeMultiple('exclude', event, value)}
+                  onChange={(event, value) =>
+                    handleAutocompleteChangeMultiple("exclude", event, value)
+                  }
                   filterSelectedOptions
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Exclude"
-                    />
+                    <TextField {...params} placeholder="Exclude" />
                   )}
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`availableLanguageInput`} className="form-label">Available Languages</label>
+                <label
+                  htmlFor={`availableLanguageInput`}
+                  className="form-label"
+                >
+                  Available Languages
+                </label>
                 <Autocomplete
                   multiple
                   id={`availableLanguageInput`}
-                  size='small'
+                  size="small"
                   options={languageOptions} // You need to define this array
                   getOptionLabel={(option) => option.label}
-                  value={formData.availableLanguage.map((item) => ({ label: item }))}
-                  onChange={(event, value) => handleAutocompleteChangeMultiple('availableLanguage', event, value)}
+                  value={formData.availableLanguage.map((item) => ({
+                    label: item,
+                  }))}
+                  onChange={(event, value) =>
+                    handleAutocompleteChangeMultiple(
+                      "availableLanguage",
+                      event,
+                      value
+                    )
+                  }
                   filterSelectedOptions
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      placeholder="Available Languages"
-                    />
+                    <TextField {...params} placeholder="Available Languages" />
                   )}
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor="startLocationInput" className="form-label">Start Location</label>
+                <label htmlFor="startLocationInput" className="form-label">
+                  Start Location
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Start Location"
                   aria-label="start-location"
-                  onChange={(e) => handleInputChange('startLocation', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("startLocation", e.target.value)
+                  }
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor="advantureLocationInput" className="form-label">Advanture Location</label>
+                <label htmlFor="advantureLocationInput" className="form-label">
+                  Advanture Location
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Advanture Location"
                   aria-label="advanture-location"
-                  onChange={(e) => handleInputChange('advantureLocation', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("advantureLocation", e.target.value)
+                  }
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`discountInput`} className="form-label">Discount</label>
+                <label htmlFor={`discountInput`} className="form-label">
+                  Discount
+                </label>
                 <input
                   type="number"
                   className="form-control"
                   placeholder="Discount"
                   aria-label="discount"
-                  onChange={(e) => handleInputChange('discount', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("discount", e.target.value)
+                  }
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`priceInput`} className="form-label">Price</label>
+                <label htmlFor={`priceInput`} className="form-label">
+                  Price
+                </label>
                 <input
                   type="number"
                   className="form-control"
                   placeholder="Price"
                   aria-label="price"
-                  onChange={(e) => handleInputChange('price', e.target.value)}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`overviewInput`} className="form-label">Overview</label>
+                <label htmlFor={`overviewInput`} className="form-label">
+                  Overview
+                </label>
                 <textarea
                   className="form-control"
                   rows="4"
-                  onChange={(e) => handleInputChange('overview', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("overview", e.target.value)
+                  }
                 ></textarea>
               </div>
 
               <div className="col-sm-4">
-                <label htmlFor={`highlightInput`} className="form-label">Highlight</label>
+                <label htmlFor={`highlightInput`} className="form-label">
+                  Highlight
+                </label>
                 <textarea
                   className="form-control"
                   rows="3"
-                  onChange={(e) => handleInputChange('highlight', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("highlight", e.target.value)
+                  }
                 ></textarea>
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`mapLinkInput`} className="form-label">Map Link</label>
+                <label htmlFor={`mapLinkInput`} className="form-label">
+                  Map Link
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Enter Map Link"
-                  onChange={(e) => handleInputChange('mapLink', e.target.value)}
+                  onChange={(e) => handleInputChange("mapLink", e.target.value)}
                 />
               </div>
               {/* <div className="col-sm-4">
@@ -402,25 +469,38 @@ const AddAdvanture = () => {
                 />
               </div> */}
               <div className="col-sm-4">
-                <label htmlFor={`diseasesInput`} className="form-label">Ineligible Diseases</label>
+                <label htmlFor={`diseasesInput`} className="form-label">
+                  Ineligible Diseases
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Enter Ineligible Diseases (comma-separated)"
-                  onChange={(e) => handleInputChange('unEligibility.diseases', e.target.value.split(','))}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "unEligibility.diseases",
+                      e.target.value.split(",")
+                    )
+                  }
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`availableSlotInput`} className="form-label">Available Slots</label>
+                <label htmlFor={`availableSlotInput`} className="form-label">
+                  Available Slots
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Enter Available Slots"
-                  onChange={(e) => handleInputChange('availableSlot', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("availableSlot", e.target.value)
+                  }
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor={`imageInput`} className="form-label">Image</label>
+                <label htmlFor={`imageInput`} className="form-label">
+                  Image
+                </label>
                 <input
                   type="file"
                   className="form-control"
@@ -437,16 +517,31 @@ const AddAdvanture = () => {
           <div className="live-preview">
             <div className="row g-3">
               <div className="col-sm-4">
-                <label htmlFor={`cancellationPolicyInput`} className="form-label">Cancellation Policy</label>
+                <label
+                  htmlFor={`cancellationPolicyInput`}
+                  className="form-label"
+                >
+                  Cancellation Policy
+                </label>
                 <FormControl component="fieldset">
                   <RadioGroup
                     aria-label="cancellationPolicy"
                     name="cancellationPolicy"
                     value={formData.cancellationPolicy}
-                    onChange={(e) => handleInputChange('cancellationPolicy', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("cancellationPolicy", e.target.value)
+                    }
                   >
-                    <FormControlLabel value="refundable" control={<Radio size="small" />} label="Refundable" />
-                    <FormControlLabel value="non-refundable" control={<Radio size="small" />} label="Non-refundable" />
+                    <FormControlLabel
+                      value="refundable"
+                      control={<Radio size="small" />}
+                      label="Refundable"
+                    />
+                    <FormControlLabel
+                      value="non-refundable"
+                      control={<Radio size="small" />}
+                      label="Non-refundable"
+                    />
                   </RadioGroup>
                 </FormControl>
               </div>
@@ -458,15 +553,25 @@ const AddAdvanture = () => {
           <div className="live-preview">
             <div className="row g-3">
               {/* ... (your existing JSX) */}
-              <label htmlFor={`ageRestrictionsInput`} className="form-label">Age Restrictions</label>
+              <label htmlFor={`ageRestrictionsInput`} className="form-label">
+                Age Restrictions
+              </label>
               <div className="col-sm-4">
-                <label htmlFor="ageCheckBoxAdult" className="form-label" style={{ display: 'flex', alignItems: 'center' }}>
+                <label
+                  htmlFor="ageCheckBoxAdult"
+                  className="form-label"
+                  style={{ display: "flex", alignItems: "center" }}
+                >
                   <input
-                    style={{ marginRight: '10px', width: '15px', height: '15px' }}
+                    style={{
+                      marginRight: "10px",
+                      width: "15px",
+                      height: "15px",
+                    }}
                     type="checkbox"
                     id="ageCheckBoxAdult"
                     checked={formData.ageTypes.adult}
-                    onChange={() => handleAgeCheckBoxChange('adult')}
+                    onChange={() => handleAgeCheckBoxChange("adult")}
                   />
                   Adult
                 </label>
@@ -477,19 +582,29 @@ const AddAdvanture = () => {
                     placeholder="Adult Age"
                     aria-label="adult-age"
                     value={formData.age.adult}
-                    onChange={(e) => handleAgeInputChange('adult', e.target.value)}
+                    onChange={(e) =>
+                      handleAgeInputChange("adult", e.target.value)
+                    }
                   />
                 )}
               </div>
 
               <div className="col-sm-4">
-                <label htmlFor="ageCheckBoxChildren" className="form-label" style={{ display: 'flex', alignItems: 'center' }}>
+                <label
+                  htmlFor="ageCheckBoxChildren"
+                  className="form-label"
+                  style={{ display: "flex", alignItems: "center" }}
+                >
                   <input
-                    style={{ marginRight: '10px', width: '15px', height: '15px' }}
+                    style={{
+                      marginRight: "10px",
+                      width: "15px",
+                      height: "15px",
+                    }}
                     type="checkbox"
                     id="ageCheckBoxChildren"
                     checked={formData.ageTypes.children}
-                    onChange={() => handleAgeCheckBoxChange('children')}
+                    onChange={() => handleAgeCheckBoxChange("children")}
                   />
                   Children
                 </label>
@@ -500,19 +615,29 @@ const AddAdvanture = () => {
                     placeholder="Children Age"
                     aria-label="children-age"
                     value={formData.age.children}
-                    onChange={(e) => handleAgeInputChange('children', e.target.value)}
+                    onChange={(e) =>
+                      handleAgeInputChange("children", e.target.value)
+                    }
                   />
                 )}
               </div>
 
               <div className="col-sm-4">
-                <label htmlFor="ageCheckBoxSenior" className="form-label" style={{ display: 'flex', alignItems: 'center' }}>
+                <label
+                  htmlFor="ageCheckBoxSenior"
+                  className="form-label"
+                  style={{ display: "flex", alignItems: "center" }}
+                >
                   <input
-                    style={{ marginRight: '10px', width: '15px', height: '15px' }}
+                    style={{
+                      marginRight: "10px",
+                      width: "15px",
+                      height: "15px",
+                    }}
                     type="checkbox"
                     id="ageCheckBoxSenior"
                     checked={formData.ageTypes.senior}
-                    onChange={() => handleAgeCheckBoxChange('senior')}
+                    onChange={() => handleAgeCheckBoxChange("senior")}
                   />
                   Senior
                 </label>
@@ -523,7 +648,9 @@ const AddAdvanture = () => {
                     placeholder="Senior Age"
                     aria-label="senior-age"
                     value={formData.age.senior}
-                    onChange={(e) => handleAgeInputChange('senior', e.target.value)}
+                    onChange={(e) =>
+                      handleAgeInputChange("senior", e.target.value)
+                    }
                   />
                 )}
               </div>
@@ -531,132 +658,167 @@ const AddAdvanture = () => {
           </div>
         </div>
 
-
         <div className="card-body">
           <div className="live-preview">
             <div className="row g-3">
               <div className="col-sm-4">
-                <label htmlFor="pickUpAndDrop" className="form-label">Pick Up & Drop</label>
+                <label htmlFor="pickUpAndDrop" className="form-label">
+                  Pick Up & Drop
+                </label>
                 <input
-                  style={{ width: '15px', height: '15px' }}
+                  style={{ width: "15px", height: "15px" }}
                   type="checkbox"
                   id="pickUpAndDrop"
                   checked={formData.pickUpAndDrop}
-                  onChange={() => handleCheckBoxChange('pickUpAndDrop')}
+                  onChange={() => handleCheckBoxChange("pickUpAndDrop")}
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor="pickUpOnly" className="form-label">Pick Up Only</label>
+                <label htmlFor="pickUpOnly" className="form-label">
+                  Pick Up Only
+                </label>
                 <input
-                  style={{ width: '15px', height: '15px' }}
+                  style={{ width: "15px", height: "15px" }}
                   type="checkbox"
                   id="pickUpOnly"
                   checked={formData.pickUpOnly}
-                  onChange={() => handleCheckBoxChange('pickUpOnly')}
+                  onChange={() => handleCheckBoxChange("pickUpOnly")}
                 />
               </div>
               <div className="col-sm-4">
-                <label htmlFor="dropOnly" className="form-label">Drop Only</label>
+                <label htmlFor="dropOnly" className="form-label">
+                  Drop Only
+                </label>
                 <input
-                  style={{ width: '15px', height: '15px' }}
+                  style={{ width: "15px", height: "15px" }}
                   type="checkbox"
                   id="dropOnly"
                   checked={formData.dropOnly}
-                  onChange={() => handleCheckBoxChange('dropOnly')}
+                  onChange={() => handleCheckBoxChange("dropOnly")}
                 />
               </div>
 
               {formData.pickUpAndDrop && (
                 <div className="col-sm-4">
-                  <label htmlFor="pickUpLocationInput" className="form-label">Pick Up Location</label>
+                  <label htmlFor="pickUpLocationInput" className="form-label">
+                    Pick Up Location
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Pick Up Location"
                     aria-label="pick-up-location"
-                    onChange={(e) => handleInputChange('pickUpLocation', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("pickUpLocation", e.target.value)
+                    }
                   />
-
                 </div>
               )}
 
               {formData.pickUpAndDrop && (
                 <div className="col-sm-4">
-                  <label htmlFor="dropLocationInput" className="form-label">Drop Location</label>
+                  <label htmlFor="dropLocationInput" className="form-label">
+                    Drop Location
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Drop Location"
                     aria-label="drop-location"
-                    onChange={(e) => handleInputChange('dropLocation', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("dropLocation", e.target.value)
+                    }
                   />
                 </div>
               )}
 
               {formData.pickUpAndDrop && (
                 <div className="col-sm-4">
-                  <label htmlFor="pickUpAndDropPriceInput" className="form-label">Pick Up & Drop Price</label>
+                  <label
+                    htmlFor="pickUpAndDropPriceInput"
+                    className="form-label"
+                  >
+                    Pick Up & Drop Price
+                  </label>
                   <input
                     type="number"
                     className="form-control"
                     placeholder="Pick Up & Drop Price"
                     aria-label="pick-up-and-drop-price"
                     value={formData.pickUpAndDropPrice}
-                    onChange={(e) => handleInputChange('pickUpAndDropPrice', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("pickUpAndDropPrice", e.target.value)
+                    }
                   />
                 </div>
               )}
 
               {formData.pickUpOnly && (
                 <div className="col-sm-4">
-                  <label htmlFor="pickUpLocationInput" className="form-label">Pick Up Location</label>
+                  <label htmlFor="pickUpLocationInput" className="form-label">
+                    Pick Up Location
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Pick Up Location"
                     aria-label="pick-up-location"
-                    onChange={(e) => handleInputChange('pickUpLocation', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("pickUpLocation", e.target.value)
+                    }
                   />
                 </div>
               )}
 
               {formData.pickUpOnly && (
                 <div className="col-sm-4">
-                  <label htmlFor="pickUpOnlyPriceInput" className="form-label">Pick Up Only Price</label>
+                  <label htmlFor="pickUpOnlyPriceInput" className="form-label">
+                    Pick Up Only Price
+                  </label>
                   <input
                     type="number"
                     className="form-control"
                     placeholder="Pick Up Only Price"
                     aria-label="pick-up-only-price"
                     value={formData.pickUpOnlyPrice}
-                    onChange={(e) => handleInputChange('pickUpOnlyPrice', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("pickUpOnlyPrice", e.target.value)
+                    }
                   />
                 </div>
               )}
 
               {formData.dropOnly && (
                 <div className="col-sm-4">
-                  <label htmlFor="dropLocationInput" className="form-label">Drop Location</label>
+                  <label htmlFor="dropLocationInput" className="form-label">
+                    Drop Location
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Drop Location"
                     aria-label="drop-location"
-                    onChange={(e) => handleInputChange('dropLocation', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("dropLocation", e.target.value)
+                    }
                   />
                 </div>
               )}
 
               {formData.dropOnly && (
                 <div className="col-sm-4">
-                  <label htmlFor="dropOnlyPriceInput" className="form-label">Drop Only Price</label>
+                  <label htmlFor="dropOnlyPriceInput" className="form-label">
+                    Drop Only Price
+                  </label>
                   <input
                     type="number"
                     className="form-control"
                     placeholder="Drop Only Price"
                     aria-label="drop-only-price"
                     value={formData.dropOnlyPrice}
-                    onChange={(e) => handleInputChange('dropOnlyPrice', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("dropOnlyPrice", e.target.value)
+                    }
                   />
                 </div>
               )}
@@ -668,30 +830,50 @@ const AddAdvanture = () => {
           <div className="live-preview">
             <div className="row g-3">
               <div className="">
-                <label htmlFor="availableVehicleInput" className="form-label">Available Vehicle</label>
+                <label htmlFor="availableVehicleInput" className="form-label">
+                  Available Vehicle
+                </label>
                 {formData.availableVehicle.map((vehicle, index) => (
-                  <div key={index} style={{ display: 'flex', marginBottom: "10px" }} className="row g-3">
-                    <div className='col-sm-4'>
+                  <div
+                    key={index}
+                    style={{ display: "flex", marginBottom: "10px" }}
+                    className="row g-3"
+                  >
+                    <div className="col-sm-4">
                       <input
                         type="text"
                         className="form-control"
                         placeholder="Vehicle Type"
                         aria-label="vehicle-type"
                         value={vehicle.vehicleType}
-                        onChange={(e) => handleNestedInputChange('availableVehicle', index, 'vehicleType', e.target.value)}
+                        onChange={(e) =>
+                          handleNestedInputChange(
+                            "availableVehicle",
+                            index,
+                            "vehicleType",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
-                    <div className='col-sm-4'>
+                    <div className="col-sm-4">
                       <input
                         type="number"
                         className="form-control"
                         placeholder="Price"
                         aria-label="vehicle-price"
                         value={vehicle.price}
-                        onChange={(e) => handleNestedInputChange('availableVehicle', index, 'price', e.target.value)}
+                        onChange={(e) =>
+                          handleNestedInputChange(
+                            "availableVehicle",
+                            index,
+                            "price",
+                            e.target.value
+                          )
+                        }
                       />
                     </div>
-                    <div className='col-sm-4'>
+                    <div className="col-sm-4">
                       {index < formData.availableVehicle.length - 1 && (
                         <button
                           className="btn btn-link"
@@ -704,10 +886,7 @@ const AddAdvanture = () => {
                   </div>
                 ))}
                 <div className="col-sm-4">
-                  <button
-                    className="btn btn-link"
-                    onClick={handleAddVehicle}
-                  >
+                  <button className="btn btn-link" onClick={handleAddVehicle}>
                     Add Vehicle
                   </button>
                 </div>
@@ -716,33 +895,40 @@ const AddAdvanture = () => {
           </div>
         </div>
 
-        
-
-        <div style={{ display: 'flex', justifyContent: 'end', padding: '15px', borderTop: '1px solid #f1f1f1' }}>
-          <button className="btn btn-primary btn-border" onClick={handleSubmit}>Submit</button>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "end",
+            padding: "15px",
+            borderTop: "1px solid #f1f1f1",
+          }}
+        >
+          <button className="btn btn-primary btn-border" onClick={handleSubmit}>
+            Submit
+          </button>
         </div>
       </div>
     </div>
   );
-}
+};
 export default AddAdvanture;
 
 const includeOptions = [
-  { label: 'English Speaking Guide' },
-  { label: 'Transfer by private transport' },
-  { label: 'Mineral water during trip' },
-  { label: 'cc' },
-  { label: 'Lunch in local restaurant' },
-  { label: 'All taxes and service charges' }
-]
+  { label: "English Speaking Guide" },
+  { label: "Transfer by private transport" },
+  { label: "Mineral water during trip" },
+  { label: "cc" },
+  { label: "Lunch in local restaurant" },
+  { label: "All taxes and service charges" },
+];
 
 const excludeOptions = [
-  { label: 'Camera fee at monuments' },
-  { label: 'Personal expenses' },
-]
+  { label: "Camera fee at monuments" },
+  { label: "Personal expenses" },
+];
 
 const languageOptions = [
-  { label: 'English' },
-  { label: 'Hindi' },
-  { label: 'Kannada' },
-]
+  { label: "English" },
+  { label: "Hindi" },
+  { label: "Kannada" },
+];

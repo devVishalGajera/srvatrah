@@ -8,6 +8,7 @@ const LocationDetails = () => {
     location: "",
     city: "",
     state: "",
+    country: "",
   });
   const localId = localStorage.getItem("_id");
   const [experienceId, setExperienceId] = useState(localId);
@@ -15,7 +16,7 @@ const LocationDetails = () => {
     if (experienceId) {
       (async function () {
         const response = await fetch(
-          `http://127.0.0.1:3232/experience/${experienceId}`,
+          `https://demo.turangh.com/experience/${experienceId}`,
           {
             method: "GET",
             headers: {
@@ -41,7 +42,13 @@ const LocationDetails = () => {
     const query = new URLSearchParams({
       location: locationdata,
     });
-    if (!locationdata) {
+    if (
+      !locationdata ||
+      (!locationdata.location && !locationdata.location === "") ||
+      (!locationdata.city && !locationdata.city === "") ||
+      (!locationdata.state && !locationdata.state === "") ||
+      (!locationdata.country && !locationdata.country === "")
+    ) {
       alert("Please enter the location");
       return;
     }
@@ -50,7 +57,7 @@ const LocationDetails = () => {
     };
 
     const response = await fetch(
-      `http://127.0.0.1:3232/experience/${experienceId}?${query.toString()}`,
+      `https://demo.turangh.com/experience/${experienceId}?${query.toString()}`,
       {
         method: "PUT",
         headers: {
@@ -69,6 +76,10 @@ const LocationDetails = () => {
         ...responseJson,
       },
     });
+  };
+
+  const goBack = () => {
+    navigate("/duration");
   };
   return (
     <div
@@ -118,7 +129,6 @@ const LocationDetails = () => {
             onChange={(e) =>
               setLocation((prev) => ({ ...prev, city: e.target.value }))
             }
-            // onChange={(e) => setLocation(e.target.value)}
           />
           <TextField
             fullWidth
@@ -129,7 +139,16 @@ const LocationDetails = () => {
             onChange={(e) =>
               setLocation((prev) => ({ ...prev, state: e.target.value }))
             }
-            // onChange={(e) => setLocation(e.target.value)}
+          />
+          <TextField
+            fullWidth
+            id="outlined-basic"
+            label="Country"
+            variant="outlined"
+            value={locationdata.country}
+            onChange={(e) =>
+              setLocation((prev) => ({ ...prev, country: e.target.value }))
+            }
           />
         </div>
       </div>
@@ -142,7 +161,9 @@ const LocationDetails = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

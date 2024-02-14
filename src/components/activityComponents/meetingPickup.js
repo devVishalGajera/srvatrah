@@ -19,7 +19,7 @@ const MeetingPickup = () => {
     if (experienceId && experienceId.length > 0) {
       (async function () {
         const response = await fetch(
-          "http://localhost:3232/experience/" + experienceId,
+          "https://demo.turangh.com/experience/" + experienceId,
           {
             method: "GET",
             headers: {
@@ -43,7 +43,7 @@ const MeetingPickup = () => {
   }, []);
   const submit = async () => {
     const response = await fetch(
-      "http://localhost:3232/experience/" + experienceId,
+      "https://demo.turangh.com/experience/" + experienceId,
       {
         method: "PUT",
         headers: {

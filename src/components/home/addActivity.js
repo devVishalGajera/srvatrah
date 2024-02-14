@@ -403,7 +403,7 @@ export default AddActivity;
 //       //   formDataWithImages.append(`subfile[${index}]`, themeImage);
 //       // });
 
-//       const response = await fetch(`http://127.0.0.1:3232/activities/?${queryParams.toString()}`, {
+//       const response = await fetch(`https://demo.turangh.com/activities/?${queryParams.toString()}`, {
 //         method: 'POST',
 //         headers: {
 //           // 'Cookie': `roomInfo=${token}`,

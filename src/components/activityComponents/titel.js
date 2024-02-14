@@ -11,7 +11,7 @@ const Titel = () => {
       try {
         if (id) {
           const response = await fetch(
-            `http://127.0.0.1:3232/experience/${id}`,
+            `https://demo.turangh.com/experience/${id}`,
             {
               method: "GET",
               headers: {
@@ -40,7 +40,7 @@ const Titel = () => {
       title: title,
     });
     const response = await fetch(
-      `http://127.0.0.1:3232/experience?${queryParams.toString()}`,
+      `https://demo.turangh.com/experience?${queryParams.toString()}`,
       {
         method: "POST",
       }

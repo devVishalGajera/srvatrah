@@ -51,7 +51,7 @@ const Inclusions = () => {
     if (experienceId) {
       (async function () {
         const response = await fetch(
-          `http://127.0.0.1:3232/experience/${experienceId}`,
+          `https://demo.turangh.com/experience/${experienceId}`,
           {
             method: "GET",
             headers: {
@@ -74,12 +74,15 @@ const Inclusions = () => {
       navigate("/titel");
     }
   }, []);
+  const goBack = () => {
+    navigate("/description"); // Change "/location" to the desired location path
+  };
   const submit = async () => {
     const data = {
       inclusions: { short_des: short_description, detail_dec: description },
     };
     const response = await fetch(
-      `http://127.0.0.1:3232/experience/${experienceId}`,
+      `https://demo.turangh.com/experience/${experienceId}`,
       {
         method: "PUT",
         headers: {
@@ -131,7 +134,14 @@ const Inclusions = () => {
       <div style={{ width: "70%" }}>
         <div style={{ padding: "20px" }}>
           <h5>Inclusions</h5>
-          <span style={{ fontStyle: "italic", paddingBottom: "5px" }}>
+          <span
+            style={{
+              fontStyle: "italic",
+              fontWeight: "bold",
+              paddingBottom: "5px",
+              fontSize: "smaller",
+            }}
+          >
             Use the inclusions to highlight any fees, equipment, or other items
             that are included in your pricing.
           </span>
@@ -170,7 +180,9 @@ const Inclusions = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

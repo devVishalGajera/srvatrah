@@ -16,7 +16,7 @@ const Photos = () => {
     if (experienceId) {
       (async function () {
         const response = await fetch(
-          `http://127.0.0.1:3232/experience/${experienceId}`,
+          `https://demo.turangh.com/experience/${experienceId}`,
           {
             method: "GET",
             headers: {
@@ -47,7 +47,7 @@ const Photos = () => {
       img_link: photos,
     };
     const response = await fetch(
-      `http://127.0.0.1:3232/experience/${experienceId}`,
+      `https://demo.turangh.com/experience/${experienceId}`,
       {
         method: "PUT",
         headers: {

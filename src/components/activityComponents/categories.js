@@ -4,8 +4,117 @@ import { useLocation, useNavigate } from "react-router-dom";
 const Categories = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const categories = [{ label: "The Godfather" }, { label: "Pulp Fiction" }];
-  const theme = [{ label: "Drama" }, { label: "Action" }];
+  const categories = [
+    { label: "ATV / quad tour" },
+    { label: "Adrenaline and extreme" },
+    { label: "Adventure" },
+    { label: "Air / helicopter tour" },
+    { label: "Airport lounge" },
+    { label: "Arts / culture" },
+    { label: "Amusement park" },
+    { label: "Bike tour" },
+    { label: "Birdwatching" },
+    { label: "Bus / minivan tour" },
+    { label: "Canoeing" },
+    { label: "Caving" },
+    { label: "City break" },
+    { label: "City tours" },
+    { label: "Classes / workshops" },
+    { label: "Classic car tours" },
+    { label: "Climbing" },
+    { label: "Culinary" },
+    { label: "Cultural and theme tours" },
+    { label: "Day trips and excursions" },
+    { label: "Diving" },
+    { label: "Dolphin / whalewatching" },
+    { label: "E-bike tour" },
+    { label: "Escape game" },
+    { label: "Educational tour" },
+    { label: "Festival" },
+    { label: "Fishing" },
+    { label: "Glacier hiking" },
+    { label: "Golf" },
+    { label: "Hiking" },
+    { label: "Holiday and seasonal tours" },
+    { label: "Hop on hop off tour" },
+    { label: "Horse carriage ride" },
+    { label: "Horseback riding" },
+    { label: "Hunting" },
+    { label: "Ice climbing" },
+    { label: "Kayaking" },
+    { label: "Language tour" },
+    { label: "Layover tours" },
+    { label: "Luxury and special occasions" },
+    { label: "Medical tour" },
+    { label: "Mini cruise" },
+    { label: "Motorcyle Tours" },
+    { label: "Mountain biking" },
+    { label: "Multisport" },
+    { label: "Nature" },
+    { label: "Museums / exhibitions" },
+    { label: "Nightlife" },
+    { label: "Obstacle courses" },
+    { label: "Paintball" },
+    { label: "Paragliding" },
+    { label: "Photography" },
+    { label: "Pilgrimage or Religion" },
+    { label: "Plantation tours" },
+    { label: "Private car tour" },
+    { label: "Private roundtrip" },
+    { label: "Rafting" },
+    { label: "Rail pass" },
+    { label: "Running" },
+    { label: "Safari / wildlife" },
+    { label: "Sailing / boat tour" },
+    { label: "Sea angling" },
+    { label: "Seat in coach tour" },
+    { label: "Segway tour" },
+    { label: "Self drive tour" },
+    { label: "Shopping" },
+    { label: "Shore excursions" },
+    { label: "Short break" },
+    { label: "Shows / musicals" },
+    { label: "Sightseeing" },
+    { label: "Sightseeing attraction" },
+    { label: "Skiing" },
+    { label: "Skip the line" },
+    { label: "Snorkeling" },
+    { label: "Spa / wellness" },
+    { label: "Snowmobile tour" },
+    { label: "Spectator sports" },
+    { label: "Sun and Beach" },
+    { label: "Surfing" },
+    { label: "TV / Movies" },
+    { label: "Theme parks" },
+    { label: "Tourist pass" },
+    { label: "Transfers and ground transport" },
+    { label: "Trolley tours" },
+    { label: "Underground tours" },
+    { label: "VIP and exclusive" },
+    { label: "Walking tour" },
+    { label: "Water" },
+    { label: "Wedding and honeymoon" },
+    { label: "Zoo / aquarium" },
+  ];
+  const theme = [
+    { label: "Adults only" },
+    { label: "Beach" },
+    { label: "Couples" },
+    { label: "Eco friendly" },
+    { label: "Family friendly" },
+    { label: "Group friendly" },
+    { label: "Indoor" },
+    { label: "Luxury" },
+    { label: "Outdoor" },
+    { label: "Private experience" },
+    { label: "Rainy day" },
+    { label: "Romantic" },
+    { label: "Senior" },
+    { label: "Skip the line" },
+    { label: "Tailor made" },
+    { label: "Volunteers" },
+    { label: "Youth" },
+  ];
   const [categoriesdata, setCategories] = useState([]);
   const [themedata, setTheme] = useState([]);
   const _id = localStorage.getItem("_id") || "";
@@ -15,7 +124,7 @@ const Categories = () => {
     if (experienceId && experienceId.length > 0) {
       (async function () {
         const response = await fetch(
-          `http://127.0.0.1:3232/experience/${experienceId}`,
+          `https://demo.turangh.com/experience/${experienceId}`,
           {
             method: "GET",
             headers: {
@@ -58,7 +167,7 @@ const Categories = () => {
     query.append("theme", themedata[0].label);
 
     const response = await fetch(
-      `http://127.0.0.1:3232/experience/${_id}?${query.toString()}`,
+      `https://demo.turangh.com/experience/${_id}?${query.toString()}`,
       {
         method: "PUT",
         headers: {
@@ -109,7 +218,7 @@ const Categories = () => {
   //   query.append("theme", themedata);
   //   console.log(query.toString(), "query");
   //   const response = await fetch(
-  //     `http://127.0.0.1:3232/experience/${_id}?${query.toString()}`,
+  //     `https://demo.turangh.com/experience/${_id}?${query.toString()}`,
   //     {
   //       method: "PUT",
   //       headers: {
@@ -144,6 +253,9 @@ const Categories = () => {
   //     () => allValues.filter((v) => v.selected),
   //     [allValues]
   //   );
+  const goBack = () => {
+    navigate("/location");
+  };
   return (
     <div
       style={{
@@ -241,7 +353,9 @@ const Categories = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>
