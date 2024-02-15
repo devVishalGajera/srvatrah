@@ -94,6 +94,9 @@ const Description = () => {
       },
     });
   };
+  const goBack = () => {
+    navigate("/categories");
+  };
 
   return (
     <div
@@ -158,7 +161,9 @@ const Description = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

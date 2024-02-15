@@ -62,6 +62,9 @@ const StartTime = () => {
   const [editingId, setEditingId] = useState(-1);
   //"2825752", "12:00 PM", "1 hour", "Standard rate", "Edit/Delete"
   const [rows, setRows] = useState([]);
+  const goBack = () => {
+    navigate("/capacity");
+  };
   useEffect(() => {
     if (experienceId && experienceId.length > 0) {
       (async () => {
@@ -460,7 +463,9 @@ const StartTime = () => {
             marginTop: "150px",
           }}
         >
-          <Button variant="outlined">Back</Button>
+          <Button variant="outlined" onClick={goBack}>
+            Back
+          </Button>
           <Button variant="contained" onClick={submit}>
             Continue
           </Button>

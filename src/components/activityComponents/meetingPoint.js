@@ -107,7 +107,9 @@ const MeetingPoint = () => {
       return;
     }
   }, []);
-
+  const goBack = () => {
+    navigate("/meetingPickup");
+  };
   const createMeetingPoint = async () => {
     if (editingIndex >= 0) {
       rows[editingIndex] = formData;
@@ -373,7 +375,9 @@ const MeetingPoint = () => {
             marginTop: "150px",
           }}
         >
-          <Button variant="outlined">Back</Button>
+          <Button variant="outlined" onClick={goBack}>
+            Back
+          </Button>
           <Button variant="contained" onClick={submit}>
             Continue
           </Button>

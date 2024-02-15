@@ -70,6 +70,9 @@ const Duration = () => {
       },
     });
   };
+  const goBack = () => {
+    navigate("/titel");
+  };
   return (
     <div
       style={{
@@ -144,7 +147,9 @@ const Duration = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

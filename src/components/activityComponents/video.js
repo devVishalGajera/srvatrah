@@ -63,6 +63,9 @@ const Videos = () => {
       },
     });
   };
+  const goBack = () => {
+    navigate("/photos");
+  };
   const handleVideoLinkChange = (index, value) => {
     const newLinks = [...videoLinks];
     newLinks[index] = value;
@@ -132,7 +135,9 @@ const Videos = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

@@ -52,6 +52,8 @@ const PricingCategories = () => {
   const [rows, setRows] = useState();
   const [temp_Id, setTemp_Id] = useState(1);
 
+  const [showPickupDrop, setShowPickupDrop] = useState(true);
+
   const [formData, setFormData] = useState({
     _id: temp_Id,
     categories: "",
@@ -66,6 +68,10 @@ const PricingCategories = () => {
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
+
+  const togglePickupDrop = () => {
+    setShowPickupDrop(!showPickupDrop);
+  };
 
   useEffect(() => {
     if (experienceId && experienceId?.length > 0) {
@@ -94,6 +100,9 @@ const PricingCategories = () => {
       return;
     }
   }, []);
+  const goBack = () => {
+    navigate("/calendar");
+  };
   //travelling_facility
   const handleSwitchChange = () => {
     setFormData({
@@ -431,86 +440,102 @@ const PricingCategories = () => {
               >
                 Pick Up & Drop Services
               </div>
-              <div
-                style={{
-                  padding: "20px",
-                  borderBottom: "1px solid ",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: "10px",
-                }}
-              >
-                <div>Pick Up & Drop</div>
-                <TextField
-                  id="outlined-basic"
-                  label="Price"
-                  variant="outlined"
-                  size="small"
-                  value={travelling_facility?.pick_up_and_drop?.price || ""}
-                  onChange={(e) => {
-                    setTravelling_facility({
-                      ...travelling_facility,
-                      pick_up_and_drop: {
-                        price: parseFloat(e.target.value),
-                      },
-                    });
-                  }}
+              <div style={{ padding: "10px" }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={showPickupDrop}
+                      onChange={togglePickupDrop}
+                      name="showPickupDrop"
+                    />
+                  }
+                  label="Show Pick Up & Drop Services"
                 />
               </div>
-              <div
-                style={{
-                  padding: "20px",
-                  borderBottom: "1px solid black",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: "10px",
-                }}
-              >
-                <div>Pick Up Only</div>
-                <TextField
-                  id="outlined-basic"
-                  label="Price"
-                  variant="outlined"
-                  size="small"
-                  value={travelling_facility?.pick_up_only?.price || ""}
-                  onChange={(e) => {
-                    setTravelling_facility({
-                      ...travelling_facility,
-                      pick_up_only: {
-                        price: parseFloat(e.target.value),
-                      },
-                    });
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  padding: "20px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: "10px",
-                }}
-              >
-                <div>Drop Only</div>
-                <TextField
-                  id="outlined-basic"
-                  label="Price"
-                  variant="outlined"
-                  size="small"
-                  value={travelling_facility?.drop_only?.price || ""}
-                  onChange={(e) => {
-                    setTravelling_facility({
-                      ...travelling_facility,
-                      drop_only: {
-                        price: parseFloat(e.target.value),
-                      },
-                    });
-                  }}
-                />
-              </div>
+              {showPickupDrop && (
+                <>
+                  <div
+                    style={{
+                      padding: "20px",
+                      borderBottom: "1px solid ",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <div>Pick Up & Drop</div>
+                    <TextField
+                      id="outlined-basic"
+                      label="Price"
+                      variant="outlined"
+                      size="small"
+                      value={travelling_facility?.pick_up_and_drop?.price || ""}
+                      onChange={(e) => {
+                        setTravelling_facility({
+                          ...travelling_facility,
+                          pick_up_and_drop: {
+                            price: parseFloat(e.target.value),
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      padding: "20px",
+                      borderBottom: "1px solid black",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <div>Pick Up Only</div>
+                    <TextField
+                      id="outlined-basic"
+                      label="Price"
+                      variant="outlined"
+                      size="small"
+                      value={travelling_facility?.pick_up_only?.price || ""}
+                      onChange={(e) => {
+                        setTravelling_facility({
+                          ...travelling_facility,
+                          pick_up_only: {
+                            price: parseFloat(e.target.value),
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      padding: "20px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <div>Drop Only</div>
+                    <TextField
+                      id="outlined-basic"
+                      label="Price"
+                      variant="outlined"
+                      size="small"
+                      value={travelling_facility?.drop_only?.price || ""}
+                      onChange={(e) => {
+                        setTravelling_facility({
+                          ...travelling_facility,
+                          drop_only: {
+                            price: parseFloat(e.target.value),
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                </>
+              )}
             </div>
             <div
               style={{
@@ -537,7 +562,9 @@ const PricingCategories = () => {
             marginTop: "150px",
           }}
         >
-          <Button variant="outlined">Back</Button>
+          <Button variant="outlined" onClick={goBack}>
+            Back
+          </Button>
           <Button variant="contained" onClick={submit}>
             Continue
           </Button>

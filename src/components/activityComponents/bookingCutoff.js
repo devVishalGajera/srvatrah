@@ -64,7 +64,9 @@ const BookingCutoff = () => {
     setSelectedOption(event.target.value);
     setShowTimeSection(event.target.value === "date");
   };
-
+  const goBack = () => {
+    navigate("/openingHours");
+  };
   const submit = async () => {
     if (showTimeSection && selectedOption.value === "custom") {
       const value = timingOptions === "date" ? date : dateTime;
@@ -359,7 +361,9 @@ const BookingCutoff = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

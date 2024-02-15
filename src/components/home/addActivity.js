@@ -27,7 +27,13 @@ const AddActivity = () => {
   return (
     <Box display="flex" flexDirection="row">
       {/* Left Side Menu */}
-      <Box bgcolor="primary.main" color="white" p={2} minWidth={250}>
+      <Box
+        bgcolor="primary.main"
+        color="white"
+        p={2}
+        minWidth={250}
+        sx={{ overflow: "scroll", maxHeight: "625px" }}
+      >
         <div>
           <Accordion>
             <AccordionSummary
@@ -140,7 +146,7 @@ const AddActivity = () => {
               <Link to={"/meetingPoint"}>
                 <Typography className="menuItem">Meeting Point</Typography>
               </Link>
-              <Typography className="menuItem">Drop-off Service</Typography>
+              {/* <Typography className="menuItem">Drop-off Service</Typography> */}
             </AccordionDetails>
           </Accordion>
         </div>
@@ -403,7 +409,7 @@ export default AddActivity;
 //       //   formDataWithImages.append(`subfile[${index}]`, themeImage);
 //       // });
 
-//       const response = await fetch(`https://demo.turangh.com/activities/?${queryParams.toString()}`, {
+//       const response = await fetch(`http://127.0.0.1:3232/activities/?${queryParams.toString()}`, {
 //         method: 'POST',
 //         headers: {
 //           // 'Cookie': `roomInfo=${token}`,

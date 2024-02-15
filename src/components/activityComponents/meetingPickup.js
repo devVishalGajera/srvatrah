@@ -41,6 +41,9 @@ const MeetingPickup = () => {
       return;
     }
   }, []);
+  const goBack = () => {
+    navigate("/pricingCategories");
+  };
   const submit = async () => {
     const response = await fetch(
       "https://demo.turangh.com/experience/" + experienceId,
@@ -178,7 +181,9 @@ const MeetingPickup = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

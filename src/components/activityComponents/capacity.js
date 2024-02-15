@@ -15,6 +15,9 @@ const Capacity = () => {
   const localId = localStorage.getItem("_id");
   const [experienceId, setExperienceId] = useState(localId ? localId : "");
   const [capacity, setCapacity] = useState("");
+  const goBack = () => {
+    navigate("/bookingCutoff");
+  };
   useEffect(() => {
     if (experienceId && experienceId.length > 0) {
       (async function () {
@@ -198,7 +201,9 @@ const Capacity = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={submit}>
           Continue
         </Button>

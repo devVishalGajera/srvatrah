@@ -96,7 +96,7 @@ const Titel = () => {
           fullWidth
           value={title}
           id="outlined-basic"
-          label="Titel"
+          label="Title"
           variant="outlined"
         />
       </div>

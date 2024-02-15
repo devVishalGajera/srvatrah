@@ -118,6 +118,9 @@ const OpeningHours = () => {
       });
     }
   };
+  const goBack = () => {
+    navigate("/timeDatePass");
+  };
   const checkboxOnchange = (e, dayName) => {
     console.log("checkboxOnchange", e, dayName);
     const check = e.target.checked;
@@ -907,7 +910,9 @@ const OpeningHours = () => {
           marginTop: "150px",
         }}
       >
-        <Button variant="outlined">Back</Button>
+        <Button variant="outlined" onClick={goBack}>
+          Back
+        </Button>
         <Button variant="contained" onClick={createOpeningHours}>
           Continue
         </Button>
