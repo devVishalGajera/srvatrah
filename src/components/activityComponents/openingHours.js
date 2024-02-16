@@ -45,7 +45,7 @@ const OpeningHours = () => {
             [keys]: {
               openHour,
               closeHour,
-              open24Hours: open24Hours ? open24Hours : false,
+              open24Hours: open24Hours,
               isOpen: true,
             },
           };
@@ -89,7 +89,7 @@ const OpeningHours = () => {
       const availabilityData = {
         day: Object.keys(day)[0],
         isOpen: true,
-        is24Hours: day[key].open24Hours || false,
+        open24Hours: day[key].open24Hours,
         openHour: open24Hours ? "00:00" : openHour,
         closeHour: open24Hours ? "00:00" : closeHour,
       };
@@ -180,20 +180,36 @@ const OpeningHours = () => {
   };
   const onIs24HoursChange = (dayName) => (e) => {
     console.log("onIs24HoursChange", e.target.checked);
-    setData((a) =>
-      e.target.checked
-        ? [
-            ...a,
-            {
-              [dayName]: {
-                openHour: "00:00",
-                closeHour: "00:00",
-                open24Hours: true,
-              },
-            },
-          ]
-        : a.filter((item) => !item[dayName])
-    );
+    setData((a) => {
+      return a.map((item) => {
+        if (item[dayName]) {
+          return e.target.checked
+            ? {
+                ...item,
+                [dayName]: { ...item[dayName], open24Hours: e.target.checked },
+              }
+            : {
+                ...item,
+                [dayName]: { ...item[dayName], open24Hours: e.target.checked },
+              };
+        }
+        return item;
+      });
+    });
+    // setData((a) =>
+    //   e.target.checked
+    //     ? [
+    //         ...a,
+    //         {
+    //           [dayName]: {
+    //             openHour: "00:00",
+    //             closeHour: "00:00",
+    //             open24Hours: true,
+    //           },
+    //         },
+    //       ]
+    //     : a.filter((item) => !item[dayName])
+    // );
   };
   return (
     <div
@@ -304,7 +320,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item?.Monday)
+                    !data.find((item) => item?.Monday) ||
+                    data.find((item) => item?.Monday)?.Monday?.open24Hours
                   }
                   size="small"
                   label="From"
@@ -325,7 +342,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item?.Monday)
+                    !data.find((item) => item?.Monday) ||
+                    data.find((item) => item?.Monday)?.Monday?.open24Hours
                   }
                   size="small"
                   label="To"
@@ -395,7 +413,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Tuesday)
+                    !data.find((item) => item.Tuesday) ||
+                    data.find((item) => item.Tuesday)?.Tuesday?.open24Hours
                   }
                   size="small"
                   label="From"
@@ -416,7 +435,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Tuesday)
+                    !data.find((item) => item.Tuesday) ||
+                    data.find((item) => item.Tuesday)?.Tuesday?.open24Hours
                   }
                   size="small"
                   label="To"
@@ -490,7 +510,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Wednesday)
+                    !data.find((item) => item.Wednesday) ||
+                    data.find((item) => item.Wednesday)?.Wednesday?.open24Hours
                   }
                   size="small"
                   label="From"
@@ -512,7 +533,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Wednesday)
+                    !data.find((item) => item.Wednesday) ||
+                    data.find((item) => item.Wednesday)?.Wednesday?.open24Hours
                   }
                   size="small"
                   label="To"
@@ -582,7 +604,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Thursday)
+                    !data.find((item) => item.Thursday) ||
+                    data.find((item) => item.Thursday)?.Thursday?.open24Hours
                   }
                   size="small"
                   label="From"
@@ -604,7 +627,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Thursday)
+                    !data.find((item) => item.Thursday) ||
+                    data.find((item) => item.Thursday)?.Thursday?.open24Hours
                   }
                   size="small"
                   label="To"
@@ -674,7 +698,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Friday)
+                    !data.find((item) => item.Friday) ||
+                    data.find((item) => item.Friday)?.Friday?.open24Hours
                   }
                   size="small"
                   label="From"
@@ -695,7 +720,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Friday)
+                    !data.find((item) => item.Friday) ||
+                    data.find((item) => item.Friday)?.Friday?.open24Hours
                   }
                   size="small"
                   label="To"
@@ -764,7 +790,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Saturday)
+                    !data.find((item) => item.Saturday) ||
+                    data.find((item) => item.Saturday)?.Saturday?.open24Hours
                   }
                   size="small"
                   label="From"
@@ -786,7 +813,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Saturday)
+                    !data.find((item) => item.Saturday) ||
+                    data.find((item) => item.Saturday)?.Saturday?.open24Hours
                   }
                   size="small"
                   label="To"
@@ -803,6 +831,12 @@ const OpeningHours = () => {
                         ? data.find((item) => item.Saturday)?.Saturday
                             ?.open24Hours
                         : false
+                    }
+                    disabled={
+                      !data ||
+                      data.length === 0 ||
+                      !data.find((item) => item.Saturday) ||
+                      !data.find((item) => item.Saturday)?.Saturday
                     }
                   />
                 }
@@ -850,7 +884,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Sunday)
+                    !data.find((item) => item.Sunday) ||
+                    data.find((item) => item.Sunday)?.Sunday?.open24Hours
                   }
                   size="small"
                   label="From"
@@ -871,7 +906,8 @@ const OpeningHours = () => {
                   disabled={
                     !data ||
                     data.length === 0 ||
-                    !data.find((item) => item.Sunday)
+                    !data.find((item) => item.Sunday) ||
+                    data.find((item) => item.Sunday)?.Sunday?.open24Hours
                   }
                   size="small"
                   label="To"
