@@ -392,7 +392,14 @@ const PricingCategories = () => {
                     <FormControlLabel
                       style={{ margin: 0 }}
                       control={<Checkbox />}
-                      label={row?.categories?.label}
+                      label={
+                        row?.categories?.label
+                          ? row?.categories?.label
+                          : row?.ticket_category
+                      }
+                      onChange={(e) => {
+                        console.log(e, "test");
+                      }}
                     />
                   </FormGroup>
                   <TextField
