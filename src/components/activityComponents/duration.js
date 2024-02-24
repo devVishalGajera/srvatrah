@@ -7,9 +7,9 @@ const Duration = () => {
   const navigate = useNavigate();
   const _id = localStorage.getItem("_id");
   const [duration, setDuration] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
+    days: "",
+    hours: "",
+    minutes: "",
   });
   const [experienceId, setExperienceId] = useState(_id);
   useEffect(() => {
@@ -105,6 +105,7 @@ const Duration = () => {
           id="outlined-number"
           label="Days"
           type="number"
+          placeholder="days"
           InputLabelProps={{
             shrink: true,
           }}
@@ -117,6 +118,7 @@ const Duration = () => {
           id="outlined-number"
           label="Hours"
           type="number"
+          placeholder="hh"
           InputLabelProps={{
             shrink: true,
           }}
@@ -129,6 +131,7 @@ const Duration = () => {
           id="outlined-number"
           label="Minutes"
           type="number"
+          placeholder="mm"
           InputLabelProps={{
             shrink: true,
           }}

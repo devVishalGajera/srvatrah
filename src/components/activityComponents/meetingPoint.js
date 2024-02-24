@@ -54,6 +54,7 @@ const MeetingPoint = () => {
   const [formData, setFormData] = useState({
     titel: "",
     address: "",
+    link: "",
     country: "",
     city: "",
     pin_code: "",
@@ -223,6 +224,20 @@ const MeetingPoint = () => {
                 value={formData.address}
                 onChange={(e) =>
                   setFormData({ ...formData, address: e.target.value })
+                }
+              />
+            </div>
+            <div style={{ padding: "10px" }}>
+              <h6>Map Link</h6>
+              {/* <span style={{ fontStyle: 'italic', paddingBottom: '5px', fontSize: '15px' }}>This internal label can be helpful when you have multiple start times at the same time. Only your company will be able to see this</span> */}
+              <TextField
+                fullWidth
+                id="outlined-basic"
+                variant="outlined"
+                size="small"
+                value={formData.link}
+                onChange={(e) =>
+                  setFormData({ ...formData, link: e.target.value })
                 }
               />
             </div>
