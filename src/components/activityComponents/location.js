@@ -1,6 +1,15 @@
-import { Button, TextField } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import CSC, { Country, State, City, IState } from "country-state-city";
+import {
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+
 const LocationDetails = () => {
   const state = useLocation();
   const navigate = useNavigate();
@@ -10,6 +19,12 @@ const LocationDetails = () => {
     state: "",
     country: "",
   });
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
   const localId = localStorage.getItem("_id");
   const [experienceId, setExperienceId] = useState(localId);
   useEffect(() => {
@@ -30,6 +45,9 @@ const LocationDetails = () => {
           return;
         }
         setLocation(responseJson.location);
+        setSelectedCountry(responseJson.location.country);
+        setSelectedState(responseJson.location.state);
+        setSelectedCity(responseJson.location.city);
       })();
       return;
     }
@@ -38,6 +56,29 @@ const LocationDetails = () => {
       return;
     }
   }, []);
+
+  const handleCountryChange = (event) => {
+    const selectedCountry = event.target.value;
+    // const country = Country.getCountryByShort(selectedCountry);
+    const states = State.getStatesOfCountry(selectedCountry.isoCode);
+    setStates(states);
+    setLocation((prevState) => ({
+      ...prevState,
+      country: selectedCountry,
+      state: "",
+      city: "",
+    }));
+  };
+
+  const handleStateChange = (event) => {
+    const selectedStates = event.target.value;
+    const countryIsoCode = Country.getCountryByCode(selectedCountry);
+    const stateCode = State.getStateByCode(selectedState);
+    const state = State.getStateByCodeAndCountry(
+      event.target.value,
+      countryIsoCode
+    );
+  };
   const submit = async () => {
     const query = new URLSearchParams({
       location: locationdata,
@@ -52,10 +93,6 @@ const LocationDetails = () => {
       alert("Please enter the location");
       return;
     }
-    const data = {
-      location: locationdata,
-    };
-
     const response = await fetch(
       `https://demo.turangh.com/experience/${experienceId}?${query.toString()}`,
       {
@@ -81,6 +118,12 @@ const LocationDetails = () => {
   const goBack = () => {
     navigate("/duration");
   };
+  // useEffect(() => {
+  //   console.log(selectedCountry);
+  //   console.log(selectedCountry?.isoCode);
+  //   console.log(State?.getStatesOfCountry(selectedCountry?.isoCode));
+  // }, [selectedCountry]);
+
   return (
     <div
       style={{
@@ -120,36 +163,82 @@ const LocationDetails = () => {
           }
         />
         <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-          <TextField
-            fullWidth
-            id="outlined-basic"
-            label="City"
-            variant="outlined"
-            value={locationdata.city}
-            onChange={(e) =>
-              setLocation((prev) => ({ ...prev, city: e.target.value }))
-            }
-          />
-          <TextField
-            fullWidth
-            id="outlined-basic"
-            label="State"
-            variant="outlined"
-            value={locationdata.state}
-            onChange={(e) =>
-              setLocation((prev) => ({ ...prev, state: e.target.value }))
-            }
-          />
-          <TextField
-            fullWidth
-            id="outlined-basic"
-            label="Country"
-            variant="outlined"
-            value={locationdata.country}
-            onChange={(e) =>
-              setLocation((prev) => ({ ...prev, country: e.target.value }))
-            }
-          />
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel id="city-label">City</InputLabel>
+            <Select
+              labelId="city-label"
+              id="city-select"
+              value={locationdata.city ? locationdata.city : ""}
+              onChange={(e) => {
+                setSelectedCity(e?.target?.value);
+                setLocation((prev) => ({
+                  ...prev,
+                  city: e.target.value,
+                }));
+              }}
+              label="City"
+            >
+              {City?.getCitiesOfState(selectedCountry, selectedState)?.map(
+                (city) => (
+                  <MenuItem key={city.name} value={city.name}>
+                    {city.name}
+                  </MenuItem>
+                )
+              )}
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel id="state-label">State</InputLabel>
+            <Select
+              labelId="state-label"
+              id="state-select"
+              value={locationdata.state}
+              onChange={(e) => {
+                setSelectedState(e?.target?.value);
+                const countryIsoCode =
+                  Country.getCountryByCode(selectedCountry);
+                const selectedStateCode = State.getStateByCodeAndCountry(
+                  selectedState,
+                  countryIsoCode?.isoCode
+                );
+                handleStateChange(e);
+                setLocation((prev) => ({
+                  ...prev,
+                  state: e.target.value,
+                }));
+              }}
+              label="State"
+            >
+              {State?.getStatesOfCountry(selectedCountry)?.map((state) => (
+                <MenuItem key={state.isoCode} value={state.isoCode}>
+                  {state.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel id="country-label">Country</InputLabel>
+            <Select
+              labelId="country-label"
+              id="country-select"
+              value={locationdata.country}
+              onChange={(e) => {
+                setSelectedCountry(e?.target?.value);
+                setLocation((prev) => ({
+                  ...prev,
+                  country: e.target.value,
+                }));
+                handleCountryChange(e);
+              }}
+              label="Country"
+            >
+              {Country.getAllCountries().map((country) => (
+                <MenuItem key={country.isoCode} value={country.isoCode}>
+                  {country.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
       </div>
 
