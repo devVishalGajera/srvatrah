@@ -78,6 +78,14 @@ const Inclusions = () => {
     navigate("/description"); // Change "/location" to the desired location path
   };
   const submit = async () => {
+    if (!short_description) {
+      alert("Please enter the short description");
+      return;
+    }
+    if (!description) {
+      alert("Please enter the description");
+      return;
+    }
     const data = {
       inclusions: { short_des: short_description, detail_dec: description },
     };

@@ -133,7 +133,10 @@ const PricingCategories = () => {
     console.log(rows);
   };
   const submit = async () => {
-    console.log(rows);
+    if (rows.length === 0) {
+      alert("Please add atleast one pricing category");
+      return;
+    }
     const pricingRows = rows.map((row) => {
       return {
         ticket_category: row.categories?.value,

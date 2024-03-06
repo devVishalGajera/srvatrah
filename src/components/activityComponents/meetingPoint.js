@@ -146,6 +146,10 @@ const MeetingPoint = () => {
     handleClose();
   };
   const submit = async () => {
+    if (rows.length === 0) {
+      alert("Please add atleast one meeting point");
+      return;
+    }
     const formatedRowWithoutId = rows.map((row) => {
       const { _id, ...rest } = row;
       return rest;

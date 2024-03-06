@@ -90,7 +90,7 @@ const LocationDetails = () => {
       (!locationdata.state && !locationdata.state === "") ||
       (!locationdata.country && !locationdata.country === "")
     ) {
-      alert("Please enter the location");
+      alert("Please enter the location details");
       return;
     }
     const response = await fetch(
@@ -118,12 +118,6 @@ const LocationDetails = () => {
   const goBack = () => {
     navigate("/duration");
   };
-  // useEffect(() => {
-  //   console.log(selectedCountry);
-  //   console.log(selectedCountry?.isoCode);
-  //   console.log(State?.getStatesOfCountry(selectedCountry?.isoCode));
-  // }, [selectedCountry]);
-
   return (
     <div
       style={{

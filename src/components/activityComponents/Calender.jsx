@@ -264,23 +264,11 @@ const Calendar = () => {
   const handleEventAdd = (event) => {};
   const handleOnFormSubmit = async () => {
     const data = currentEvents;
-    const result = await fetch(
-      "https://demo.turangh.com/experience/" + experienceId,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
-    const response = await result.json();
-    console.log(response, "response");
-    navigate("/pricingCategories", {
-      state: {
-        ...response,
-      },
-    });
+    if (data.length === 0) {
+      alert("Please add events");
+      return;
+    }
+    navigate("/pricingCategories");
   };
 
   const handleParticipantChange = (event, type) => {

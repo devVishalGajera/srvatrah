@@ -44,6 +44,17 @@ const Duration = () => {
     }
   }, []);
   const submit = async () => {
+    if (
+      !duration.days ||
+      !duration.hours ||
+      !duration.minutes ||
+      !duration.days.trim() ||
+      !duration.hours.trim() ||
+      !duration.minutes.trim()
+    ) {
+      alert("Please fill in all the fields");
+      return;
+    }
     const durationInString = `${duration.days}:${duration.hours}:${duration.minutes}`;
     const query = new URLSearchParams({
       duration: durationInString,

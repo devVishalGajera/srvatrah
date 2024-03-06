@@ -39,6 +39,10 @@ const Videos = () => {
     }
   }, []);
   const submit = async () => {
+    if (videoLinks.length === 0) {
+      alert("please add videos");
+      return;
+    }
     const data = {
       video_link: videoLinks,
     };

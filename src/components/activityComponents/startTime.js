@@ -147,32 +147,10 @@ const StartTime = () => {
     handleOpen();
   };
   const submit = async () => {
-    /**
-     *  start_time: {
-    type: String,
-    required: true,
-  },
-  duration: {
-    hours: {
-      type: Number,
-      required: true,
-    },
-    minutes: {
-      type: Number,
-      required: true,
-    },
-  },
-  internal_label: {
-    type: String,
-  },
-  external_label: {
-    type: String,
-  },
-  product_code: {
-    type: String,
-    required: true,
-  },
-     */
+    if (rows.length === 0) {
+      alert("Please add start time");
+      return;
+    }
     console.log(rows);
     const updatedRows = rows.map((row) => {
       return {

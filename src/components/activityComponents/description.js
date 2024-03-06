@@ -70,6 +70,14 @@ const Description = () => {
     }
   }, []);
   const submit = async () => {
+    if (!shortDescription) {
+      alert("Please enter the short description");
+      return;
+    }
+    if (!description) {
+      alert("Please enter the description");
+      return;
+    }
     const data = {
       description: { short_des: shortDescription, detail_dec: description },
     };

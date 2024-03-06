@@ -40,7 +40,7 @@ const Photos = () => {
   }, []);
   const submit = async () => {
     if (photos.length === 0) {
-      navigate("/videos");
+      alert("please add photos");
       return;
     }
     const data = {
