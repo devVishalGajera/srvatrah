@@ -15,7 +15,7 @@ import {
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 import { useLocation, useNavigate } from "react-router-dom";
 function createData(id, time, duration, linkedRates, buttons) {
@@ -60,6 +60,8 @@ const StartTime = () => {
   });
   const [totalData, setTotalData] = useState(1);
   const [editingId, setEditingId] = useState(-1);
+  const timePickerRef = useRef(null);
+
   //"2825752", "12:00 PM", "1 hour", "Standard rate", "Edit/Delete"
   const [rows, setRows] = useState([]);
   const goBack = () => {
@@ -181,6 +183,12 @@ const StartTime = () => {
       },
     });
   };
+  const onKeyDown = (e) => {
+    // Prevent keyboard input in the TimePicker
+    if (timePickerRef.current?.contains(e.target)) {
+      e.preventDefault();
+    }
+  };
   return (
     <>
       <Modal
@@ -197,17 +205,19 @@ const StartTime = () => {
             </Typography>
           </div>
           <div style={{ marginTop: "10px" }}>
-            <div style={{ padding: "10px" }}>
+            <div style={{ padding: "10px" }} onKeyDown={onKeyDown}>
               <h6>Start time / departure</h6>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={["TimePicker"]}>
                   <TimePicker
+                    inputReadOnly
                     onChange={(e) => {
                       console.log("time");
                       console.log(e?.format("HH:mm"));
                       setFormData({ ...formData, time: e?.format("HH:mm") });
                     }}
                     size="small"
+                    ref={timePickerRef}
                   />
                 </DemoContainer>
               </LocalizationProvider>
