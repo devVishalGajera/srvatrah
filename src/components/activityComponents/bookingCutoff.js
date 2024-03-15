@@ -344,6 +344,7 @@ const BookingCutoff = () => {
                       }}
                       size="small"
                       label="Time"
+                      ampm={false}
                     />
                   </DemoContainer>
                 </LocalizationProvider>

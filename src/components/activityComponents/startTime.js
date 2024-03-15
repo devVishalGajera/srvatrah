@@ -218,6 +218,7 @@ const StartTime = () => {
                     }}
                     size="small"
                     ref={timePickerRef}
+                    ampm={false}
                   />
                 </DemoContainer>
               </LocalizationProvider>
