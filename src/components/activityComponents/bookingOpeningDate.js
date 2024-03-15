@@ -125,7 +125,7 @@ const BookingOpeningDate = () => {
           </LocalizationProvider>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={["TimePicker"]}>
-              <TimePicker size="small" label="Time" />
+              <TimePicker size="small" label="Time" ampm={false} />
             </DemoContainer>
           </LocalizationProvider>
         </div>
@@ -147,7 +147,7 @@ const BookingOpeningDate = () => {
           <div style={{ display: "flex", alignItems: "center" }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="Time" />
+                <TimePicker size="small" label="Time" ampm={false} />
               </DemoContainer>
             </LocalizationProvider>
             <h6 style={{ paddingLeft: "15px" }}>
@@ -175,7 +175,7 @@ const BookingOpeningDate = () => {
           <div style={{ display: "flex", alignItems: "center" }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DemoContainer components={["TimePicker"]}>
-                <TimePicker size="small" label="Time" />
+                <TimePicker size="small" label="Time" ampm={false} />
               </DemoContainer>
             </LocalizationProvider>
             <h6 style={{ paddingLeft: "15px" }}>
